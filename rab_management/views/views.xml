@@ -1,0 +1,45 @@
+<odoo>
+    <data>
+
+
+        <!-- ACTION -->
+        <record id="action_rab_management" model="ir.actions.act_window">
+            <field name="name">RAB</field>
+            <field name="res_model">rab.management</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- LIST VIEW -->
+        <record id="view_rab_tree" model="ir.ui.view">
+            <field name="name">rab.management.tree</field>
+            <field name="model">rab.management</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name" readonly="1"/>
+                    <field name="date"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- FORM VIEW -->
+        <record id="view_rab_form" model="ir.ui.view">
+            <field name="name">rab.management.form</field>
+            <field name="model">rab.management</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="date"/>
+                            <field name="state"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        
+
+    </data>
+</odoo>

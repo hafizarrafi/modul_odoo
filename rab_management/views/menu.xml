@@ -1,0 +1,8 @@
+<odoo>
+    <menuitem id="menu_rab_root" name="RAB" sequence="10"/>
+    <menuitem
+        id="menu_rab_management"
+        name="RAB List"
+        parent="menu_rab_root"
+        action="action_rab_management"/>
+</odoo>

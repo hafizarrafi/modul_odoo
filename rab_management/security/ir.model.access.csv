@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_rab_management,rab.management,model_rab_management,,1,1,1,1
+access_rab_management_line,rab.management.line,model_rab_management_line,,1,1,1,1
