@@ -9,18 +9,39 @@ class ResPartner(models.Model):
             ('customer', 'Customer'),
             ('both', 'Both'),
         ],
-        compute='_compute_contact_type',
-        store=True,
+        string='Contact Type',
+        required=True,
+        default='customer',
     )
-
-    @api.depends('customer_rank', 'supplier_rank')
-    def _compute_contact_type(self):
+    @api.onchange('customer_rank', 'supplier_rank')
+    def _onchange_sync_contact_type_from_rank(self):
         for partner in self:
+            # kalau sudah ada contact_type, jangan ditimpa
+            if partner.contact_type:
+                continue
+
             if partner.customer_rank > 0 and partner.supplier_rank > 0:
                 partner.contact_type = 'both'
             elif partner.customer_rank > 0:
                 partner.contact_type = 'customer'
             elif partner.supplier_rank > 0:
                 partner.contact_type = 'supplier'
-            else:
-                partner.contact_type = False
+        
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('contact_type'):
+                customer_rank = vals.get('customer_rank', 0)
+                supplier_rank = vals.get('supplier_rank', 0)
+
+                if customer_rank > 0 and supplier_rank > 0:
+                    vals['contact_type'] = 'both'
+                elif customer_rank > 0:
+                    vals['contact_type'] = 'customer'
+                elif supplier_rank > 0:
+                    vals['contact_type'] = 'supplier'
+                else:
+                    vals['contact_type'] = 'customer'
+
+        return super().create(vals_list)
+
