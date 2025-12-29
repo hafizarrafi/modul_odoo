@@ -1,6 +1,6 @@
 {
     'name': 'RAB Management',
-    'version': '1.3.1',
+    'version': '1.3',
     'category': 'Accounting',
     'summary': 'Budget Plan (RAB) Management',
     'author': 'YourCompany',
