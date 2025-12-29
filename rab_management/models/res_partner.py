@@ -5,22 +5,24 @@ class ResPartner(models.Model):
 
     contact_type = fields.Selection(
         [
-            ('supplier', 'Supplier'),
             ('customer', 'Customer'),
+            ('supplier', 'Supplier'),
             ('both', 'Both'),
         ],
-        compute='_compute_contact_type',
-        store=True,
+        string='Contact Type',
+        required=True,
+        default='customer',
     )
 
-    @api.depends('customer_rank', 'supplier_rank')
-    def _compute_contact_type(self):
+    @api.onchange('contact_type')
+    def _onchange_contact_type(self):
         for partner in self:
-            if partner.customer_rank > 0 and partner.supplier_rank > 0:
-                partner.contact_type = 'both'
-            elif partner.customer_rank > 0:
-                partner.contact_type = 'customer'
-            elif partner.supplier_rank > 0:
-                partner.contact_type = 'supplier'
+            if partner.contact_type in ('customer', 'both'):
+                partner.customer_rank = 1
             else:
-                partner.contact_type = False
+                partner.customer_rank = 0
+
+            if partner.contact_type in ('supplier', 'both'):
+                partner.supplier_rank = 1
+            else:
+                partner.supplier_rank = 0
