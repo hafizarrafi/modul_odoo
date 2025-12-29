@@ -7,7 +7,7 @@
     'depends': [
         'base',
         'product',
-        'contacts'
+        'contacts',
         'sale',       
         'purchase',   
     ],
