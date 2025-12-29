@@ -1,6 +1,5 @@
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError, UserError
-
+from odoo.exceptions import ValidationError
 
 class RabVendorComparison(models.Model):
     _name = 'rab.vendor.comparison'
@@ -27,20 +26,22 @@ class RabVendorComparison(models.Model):
 
     vendor_id = fields.Many2one(
         'res.partner',
-        string='Supplier',
-        required=True,
-        domain=[
-            ('contact_type', 'in', ['supplier', 'both']),
-            ('is_company', '=', True),
-        ],
+        domain=[('supplier_rank', '>', 0)],
+        required=True
     )
 
     price = fields.Float(required=True)
     is_selected = fields.Boolean(default=False)
 
-    # =========================
-    # VALIDASI 1 VENDOR TERPILIH
-    # =========================
+
+    # KONDISI VALIDASI 1 VENDOR TERPILIH PER ITEM
+
+    def write(self, vals):
+        for rec in self:
+            if rec.rab_line_id.rab_id.state == 'approved':
+                raise UserError("Cannot modify vendor comparison on approved RAB.")
+        return super().write(vals)
+
     @api.constrains('is_selected')
     def _check_single_vendor(self):
         for rec in self:
@@ -55,25 +56,18 @@ class RabVendorComparison(models.Model):
                         "Only one vendor can be selected per RAB line."
                     )
 
-    # =========================
-    # WRITE OVERRIDE (LOCK + SYNC)
-    # =========================
-    def write(self, vals):
-        for rec in self:
-            if rec.rab_id.state == 'approved':
-                raise UserError(
-                    "Cannot modify vendor comparison on approved RAB."
-                )
+    # AUTO SYNC FIELD KE RAB LINE
 
+    def write(self, vals):
         res = super().write(vals)
 
         if vals.get('is_selected'):
-            for rec in self.filtered('is_selected'):
-                rec.rab_line_id.with_context(
-                    allow_approved_write=True
-                ).write({
+            for rec in self:
+                rec.rab_line_id.write({
                     'chosen_vendor_id': rec.vendor_id.id,
                     'purchase_price': rec.price,
                 })
 
         return res
+    
+    
