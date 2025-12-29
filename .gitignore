@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+*.zip
+*.rar
+*.pyc
+__pycache__/
+odoo.log
+.env
+

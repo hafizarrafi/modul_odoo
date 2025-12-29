@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- TREE VIEW -->
+    <record id="view_rab_vendor_comparison_tree" model="ir.ui.view">
+        <field name="name">rab.vendor.comparison.tree</field>
+        <field name="model">rab.vendor.comparison</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="vendor_id"/>
+                <field name="price"/>
+                <field name="is_selected"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>
