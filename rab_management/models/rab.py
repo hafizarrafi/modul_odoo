@@ -263,9 +263,9 @@ class RabManagement(models.Model):
             ])
 
 
-    # =========================
+ 
     # KUNCI WRITE OVERRIDE KETIKA APPROVED
-    # =========================
+
     def write(self, vals):
             for rec in self:
                 if rec.state == 'approved':
@@ -279,17 +279,17 @@ class RabManagement(models.Model):
             return super().write(vals)
 
 
-    # =========================
+ 
     # COMPUTE
-    # =========================
+  
     @api.depends('line_ids.subtotal')
     def _compute_total(self):
         for rec in self:
             rec.total_amount = sum(rec.line_ids.mapped('subtotal'))
 
-    # =========================
+  
     # SEQUENCE
-    # =========================
+   
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -317,5 +317,3 @@ class RabManagement(models.Model):
     def action_request_revision(self):
         self.ensure_one()
         self.state = 'revision'
-
-    

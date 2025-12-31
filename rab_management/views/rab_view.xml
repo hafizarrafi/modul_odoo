@@ -79,9 +79,7 @@
                             type="object"
                             string="Vendor Matrix"
                             class="btn-secondary"
-                            invisible="state == 'draft'"/>
-                        
-                    
+                            invisible="state == 'draft'"/>                    
 
                     <field name="state"
                            widget="statusbar"
