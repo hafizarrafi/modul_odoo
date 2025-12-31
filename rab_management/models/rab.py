@@ -76,6 +76,11 @@ class RabManagement(models.Model):
 
 
     # WORKFLOW YANG DISEDIAKAN
+    def action_save_draft(self):
+        self.ensure_one()
+        self.write({})
+        return True
+
 
     def action_confirm(self):
         for rec in self:
@@ -162,7 +167,6 @@ class RabManagement(models.Model):
             'target': 'current',
         }
     
-
     
     # PEMBUATAN PURCHASE ORDER DARI RAB
 

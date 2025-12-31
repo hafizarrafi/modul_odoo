@@ -32,6 +32,12 @@
                 <!-- HEADER BUTTONS -->
                 <header>
 
+                <button name="action_save_draft"
+                        type="object"
+                        string="Simpan Draft"
+                        class="btn-secondary"
+                        help="Simpan data tanpa mengonfirmasi RAB"/>
+
                     <button name="action_confirm"
                             type="object"
                             string="Confirm RAB"
@@ -111,6 +117,7 @@
                                             string="Vendor"
                                             icon="fa-external-link"
                                             class="oe_highlight"
+                                            context="{'force_save': True}"
                                             readonly="is_locked"/>
                                 </list>
 

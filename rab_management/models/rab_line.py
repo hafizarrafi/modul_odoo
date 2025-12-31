@@ -93,8 +93,6 @@ class RabManagementLine(models.Model):
 
 
     # METODE YANG MEMERLUKAN COMPUTE / OVERRIDE WRITE
-   
-
 
     def write(self, vals):
         for rec in self:
@@ -141,6 +139,10 @@ class RabManagementLine(models.Model):
 
     def action_open_rab_line(self):
         self.ensure_one()
+
+        if not self.id:
+            self.write({})
+
         return {
             'type': 'ir.actions.act_window',
             'name': 'RAB Line',
@@ -149,3 +151,4 @@ class RabManagementLine(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+

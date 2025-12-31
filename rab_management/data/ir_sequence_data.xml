@@ -1,4 +1,5 @@
 <odoo>
+<!-- untuk penomoran rab -->
     <data noupdate="1">
 
         <record id="seq_rab_management" model="ir.sequence">
