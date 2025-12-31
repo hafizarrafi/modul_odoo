@@ -17,7 +17,11 @@
         'views/rab_view.xml',
         'views/menu.xml',
         'views/rab_vendor_comparison.xml',
+        'views/rab_vendor_comparison_pivot.xml',
     ],
     'application': True,
     'license': 'LGPL-3',
+
+    
+
 }

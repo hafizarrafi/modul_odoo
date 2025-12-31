@@ -48,7 +48,7 @@
                             type="object"
                             string="Send for Approval"
                             class="oe_highlight"
-                            invisible="state != 'confirmed'"/>
+                            invisible="state not in ('confirmed','revision')"/>
 
                     <button name="action_approve"
                             type="object"
@@ -62,17 +62,30 @@
                             class="oe_highlight"
                             invisible="state != 'approved'"/>
 
-                    <button
-                            name="action_create_purchase_orders"
+                    <button name="action_create_purchase_orders"
                             type="object"
                             string="Create Purchase Orders"
                             class="oe_highlight"
                             invisible="state != 'approved'"/>
 
 
+                    <button name="action_request_revision"
+                            type="object"
+                            string="Request Revision"
+                            class="oe_highlight"
+                            invisible="state != 'to_approve'"/>
+                    <!-- Vendor Matrix Button -->
+                    <button name="action_open_vendor_matrix"
+                            type="object"
+                            string="Vendor Matrix"
+                            class="btn-secondary"
+                            invisible="state == 'draft'"/>
+                        
+                    
+
                     <field name="state"
                            widget="statusbar"
-                           statusbar_visible="draft,confirmed,to_approve,approved"/>
+                           statusbar_visible="draft,confirmed,to_approve,revision,approved"/>
                 </header>
 
                 <sheet>
@@ -182,12 +195,19 @@
                             </field>
                         </page>
 
+
+
                     </notebook>
 
                     <!-- TOTAL -->
                     <group>
                         <field name="total_amount" readonly="1"/>
                     </group>
+
+                    <field name="revision_note"
+                        placeholder="Reason for revision..."
+                        invisible="state != 'revision'"/>
+
 
                 </sheet>
             </form>

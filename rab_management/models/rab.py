@@ -20,15 +20,23 @@ class RabManagement(models.Model):
         default=fields.Date.today
     )
 
-    state = fields.Selection(
-        [
-            ('draft', 'Draft'),
-            ('confirmed', 'Confirmed'),
-            ('to_approve', 'Waiting Approval'),
-            ('approved', 'Approved'),
-        ],
-        default='draft'
+
+# coba revisi
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('confirmed', 'Confirmed'),
+        ('to_approve', 'Waiting Approval'),
+        ('revision', 'Revision'),
+        ('approved', 'Approved'),
+    ], default='draft', tracking=True
     )
+
+    revision_note = fields.Text(
+        string="Revision Note",
+        tracking=True
+    )
+
+
 
     customer_id = fields.Many2one(
         'res.partner',
@@ -74,6 +82,8 @@ class RabManagement(models.Model):
         readonly=True,
     )
 
+    
+
 
     # WORKFLOW YANG DISEDIAKAN
     def action_save_draft(self):
@@ -105,7 +115,7 @@ class RabManagement(models.Model):
 
     def action_send_for_approval(self):
         for rec in self:
-            if rec.state != 'confirmed':
+            if rec.state not in ('confirmed', 'revision'):
                 return
             rec.state = 'to_approve'
 
@@ -288,3 +298,24 @@ class RabManagement(models.Model):
                     'rab.management'
                 ) or 'New'
         return super().create(vals_list)
+    
+
+    # coba fitur matrix vendor
+    def action_open_vendor_matrix(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Vendor Matrix',
+            'res_model': 'rab.vendor.comparison',
+            'view_mode': 'pivot',
+            'view_id': self.env.ref('rab_management.view_rab_vendor_comparison_pivot').id,
+            'domain': [('rab_id', '=', self.id)],
+            'target': 'current',  # atau 'new' kalau mau popup
+        }
+    
+    # coba fitur revision
+    def action_request_revision(self):
+        self.ensure_one()
+        self.state = 'revision'
+
+    
