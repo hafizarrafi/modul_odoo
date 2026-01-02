@@ -27,9 +27,11 @@ class RabVendorComparison(models.Model):
 
     vendor_id = fields.Many2one(
         'res.partner',
-        domain=[('supplier_rank', '>', 0)],
-        required=True
+        string='Vendor',
+        required=True,
+        domain=[('contact_type', 'in', ['vendor', 'both'])],
     )
+
 
     price = fields.Float(required=True)
     is_selected = fields.Boolean(default=False)

@@ -42,8 +42,9 @@ class RabManagement(models.Model):
         'res.partner',
         string='Customer',
         required=True,
-        domain=[('customer_rank', '>', 0)],
+        domain=[('contact_type', 'in', ['customer', 'both'])],
     )
+
 
     line_ids = fields.One2many(
         'rab.management.line',
