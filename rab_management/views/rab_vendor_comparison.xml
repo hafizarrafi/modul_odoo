@@ -8,14 +8,32 @@
             <list editable="bottom">
                 <field name="vendor_id"/>
                 <field name="price"/>
-                <field name="is_selected" readonly="1"/>
 
+                <field name="last_purchase_price"
+                       readonly="1"
+                       class="text-muted"/>
+
+                <field name="last_purchase_date"
+                       widget="date"
+                       readonly="1"
+                       class="text-muted"/>
+                       
+                <!-- PILIH -->
                 <button name="action_select_vendor"
                         type="object"
                         string="Select"
-                        class="oe_highlight"
+                        class="btn-secondary"
                         invisible="is_selected"/>
+
+                <button name="action_select_vendor"
+                        type="object"
+                        string="Selected"
+                        class="btn-success"
+                        readonly="1"
+                        invisible="not is_selected"/>
+
             </list>
         </field>
     </record>
+
 </odoo>
