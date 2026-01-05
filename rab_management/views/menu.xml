@@ -1,5 +1,5 @@
 <odoo>
-    <menuitem id="menu_rab_root" name="RAB" sequence="10"/>
+    <menuitem id="menu_rab_root" name="RAB" sequence="10" web_icon="rab_management,static/description/icon.png"/>
     <menuitem
         id="menu_rab_management"
         name="RAB List"
