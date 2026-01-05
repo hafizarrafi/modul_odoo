@@ -6,31 +6,63 @@
         <field name="model">rab.vendor.comparison</field>
         <field name="arch" type="xml">
             <list editable="bottom">
-                <field name="vendor_id"/>
-                <field name="price"/>
 
+                <!-- Vendor -->
+                <field name="vendor_id"/>
+
+                <!-- Referensi histori -->
                 <field name="last_purchase_price"
+                       string="Harga Terakhir Beli"
                        readonly="1"
                        class="text-muted"/>
 
                 <field name="last_purchase_date"
+                       string="Tanggal Terakhir"
                        widget="date"
                        readonly="1"
                        class="text-muted"/>
                        
-                <!-- PILIH -->
-                <button name="action_select_vendor"
-                        type="object"
-                        string="Select"
-                        class="btn-secondary"
-                        invisible="is_selected"/>
+                <!-- Harga awal (editable di draft) -->
+                <field name="price"
+                       string="Harga Awal"
+                       readonly="vendor_state != 'draft'"/>
 
-                <button name="action_select_vendor"
+                <!-- Harga negosiasi (editable di negotiation) -->
+                <field name="negotiation_price"
+                       string="Harga Negosiasi"
+                       invisible="vendor_state == 'draft'"
+                       readonly="vendor_state != 'negotiation'"/>
+
+
+                <!-- Status -->
+                <field name="vendor_state"
+                       widget="badge"
+                       readonly="1"
+                       decoration-success="vendor_state == 'final'"
+                       decoration-warning="vendor_state == 'negotiation'"
+                       decoration-muted="vendor_state == 'draft'"
+                       decoration-danger="vendor_state == 'cancelled'"/>
+
+                <!-- Actions -->
+                <button name="action_set_negotiation"
                         type="object"
-                        string="Selected"
-                        class="btn-success"
-                        readonly="1"
-                        invisible="not is_selected"/>
+                        string="Masuk Negosiasi"
+                        class="btn-secondary btn-sm"
+                        invisible="vendor_state != 'draft' or has_final_vendor"/>
+
+                <button name="action_set_final"
+                        type="object"
+                        string="Pilih Final"
+                        class="btn-success btn-sm"
+                        context="{'force_save': True}"
+                        invisible="vendor_state != 'negotiation'"/>
+
+                <button name="action_reset_final"
+                        type="object"
+                        string="Reset Final"
+                        class="btn-danger btn-sm"
+                        confirm="Batalkan vendor final?"
+                        invisible="vendor_state != 'final'"/>
 
             </list>
         </field>

@@ -1,10 +1,12 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
+
 class RabManagementLine(models.Model):
     _name = 'rab.management.line'
     _description = 'RAB Line'
 
+    # --- Relasi utama ---
     rab_id = fields.Many2one(
         'rab.management',
         ondelete='cascade',
@@ -13,12 +15,13 @@ class RabManagementLine(models.Model):
 
     product_id = fields.Many2one(
         'product.product',
-        string='Product',
+        string='Produk',
         required=True
     )
 
+    # Nama baris otomatis mengikuti produk yang dipilih
     name = fields.Char(
-        string='Description',
+        string='Deskripsi',
         compute='_compute_name',
         store=True
     )
@@ -28,53 +31,50 @@ class RabManagementLine(models.Model):
         digits='Product Unit of Measure'
     )
 
-
-    # VENDOR COMPARISON
-   
+    # --- Perbandingan vendor ---
     vendor_line_ids = fields.One2many(
         'rab.vendor.comparison',
         'rab_line_id',
-        string='Vendor Comparison'
+        string='Perbandingan Vendor'
     )
 
+    # Vendor yang dipilih sebagai hasil akhir
     chosen_vendor_id = fields.Many2one(
         'res.partner',
-        string='Selected Vendor',
+        string='Vendor Terpilih',
         readonly=True
     )
 
+    # Harga beli akhir yang diambil dari vendor terpilih
     purchase_price = fields.Monetary(
-        string='Purchase Price',
+        string='Harga Beli',
         readonly=True
     )
 
-    
-    # MARGIN & PRICING
-   
+    # --- Margin & harga jual ---
     margin_type = fields.Selection(
         [
-            ('absolute', 'Absolute'),
-            ('percentage', 'Percentage'),
+            ('absolute', 'Nominal'),
+            ('percentage', 'Persentase'),
         ],
-        string='Margin Type',
+        string='Tipe Margin',
         default='absolute',
         required=True
     )
 
     margin_value = fields.Float(
-        string='Margin Value'
+        string='Nilai Margin'
     )
 
+    # Harga jual dihitung dari harga beli + margin
     sale_price = fields.Monetary(
-        string='Sale Price',
+        string='Harga Jual',
         compute='_compute_sale_price',
         store=True,
         readonly=True
     )
 
-   
-    # TOTAL
-   
+    # --- Total ---
     subtotal = fields.Monetary(
         compute='_compute_subtotal',
         store=True
@@ -86,28 +86,45 @@ class RabManagementLine(models.Model):
         readonly=True
     )
 
+    # Penanda bahwa baris terkunci ketika RAB sudah disetujui
     is_locked = fields.Boolean(
-    compute='_compute_is_locked',
-    store=True
+        compute='_compute_is_locked',
+        store=True
     )
 
+    # Tahapan global proses perbandingan vendor
+    vendor_comparison_stage = fields.Selection(
+        [
+            ('draft', 'Draft'),
+            ('negotiation', 'Negosiasi'),
+            ('selected', 'Terpilih'),
+        ],
+        default='draft',
+        tracking=True,
+        string='Tahap Perbandingan Vendor'
+    )
 
-    # METODE YANG MEMERLUKAN COMPUTE / OVERRIDE WRITE
+    # ------------------------------------------------------------------
+    # Proteksi perubahan data
+    # ------------------------------------------------------------------
 
     def write(self, vals):
+        # Baris RAB tidak boleh diubah jika RAB sudah disetujui
         for rec in self:
             if rec.rab_id.state == 'approved':
                 raise UserError(
-                    "Approved RAB lines cannot be modified."
+                    "Baris RAB yang sudah disetujui tidak dapat diubah."
                 )
         return super().write(vals)
+
+    # ------------------------------------------------------------------
+    # Method compute
+    # ------------------------------------------------------------------
 
     @api.depends('rab_id.state')
     def _compute_is_locked(self):
         for rec in self:
             rec.is_locked = rec.rab_id.state == 'approved'
-
-
 
     @api.depends('product_id')
     def _compute_name(self):
@@ -134,14 +151,16 @@ class RabManagementLine(models.Model):
         for line in self:
             line.subtotal = line.quantity * line.sale_price
 
-  
-    # ACTION OPEN RAB LINE
+    # ------------------------------------------------------------------
+    # Action
+    # ------------------------------------------------------------------
 
     def action_open_rab_line(self):
         self.ensure_one()
 
-        if not self.id:
-            self.write({})
+        # Perbarui data perbandingan vendor berdasarkan histori pembelian
+        # Dipicu secara eksplisit saat user membuka RAB Line
+        self.env['rab.vendor.comparison'].auto_populate_from_last_purchase(self)
 
         return {
             'type': 'ir.actions.act_window',
@@ -151,4 +170,3 @@ class RabManagementLine(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
-

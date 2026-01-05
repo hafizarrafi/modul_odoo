@@ -1,215 +1,232 @@
-<odoo>
+    <odoo>
 
-    <!-- ACTION -->
-    <record id="action_rab_management" model="ir.actions.act_window">
-        <field name="name">RAB</field>
-        <field name="res_model">rab.management</field>
-        <field name="view_mode">list,form</field>
-    </record>
+        <!-- ACTION -->
+        <record id="action_rab_management" model="ir.actions.act_window">
+            <field name="name">RAB</field>
+            <field name="res_model">rab.management</field>
+            <field name="view_mode">list,form</field>
+        </record>
 
-    <!-- LIST VIEW -->
-    <record id="view_rab_list" model="ir.ui.view">
-        <field name="name">rab.management.list</field>
-        <field name="model">rab.management</field>
-        <field name="arch" type="xml">
-            <list>
-                <field name="name"/>
-                <field name="date"/>
-                <field name="customer_id"/>
-                <field name="state"/>
-                <field name="total_amount"/>
-            </list>
-        </field>
-    </record>
+        <!-- LIST VIEW -->
+        <record id="view_rab_list" model="ir.ui.view">
+            <field name="name">rab.management.list</field>
+            <field name="model">rab.management</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="customer_id"/>
+                    <field name="state"/>
+                    <field name="total_amount"/>
+                </list>
+            </field>
+        </record>
 
-    <!-- FORM VIEW -->
-    <record id="view_rab_form" model="ir.ui.view">
-        <field name="name">rab.management.form</field>
-        <field name="model">rab.management</field>
-        <field name="arch" type="xml">
-            <form string="RAB">
+        <!-- FORM VIEW -->
+        <record id="view_rab_form" model="ir.ui.view">
+            <field name="name">rab.management.form</field>
+            <field name="model">rab.management</field>
+            <field name="arch" type="xml">
+                <form string="RAB">
 
-                <!-- HEADER BUTTONS -->
-                <header>
+                    <!-- HEADER BUTTONS -->
+                    <header>
 
-                <button name="action_save_draft"
-                        type="object"
-                        string="Simpan Draft"
-                        class="btn-secondary"
-                        help="Simpan data tanpa mengonfirmasi RAB"/>
-
-                    <button name="action_confirm"
+                    <button name="action_save_draft"
                             type="object"
-                            string="Confirm RAB"
-                            class="oe_highlight"
-                            invisible="state != 'draft'"/>
-
-                    <button name="action_send_for_approval"
-                            type="object"
-                            string="Send for Approval"
-                            class="oe_highlight"
-                            invisible="state not in ('confirmed','revision')"/>
-
-                    <button name="action_approve"
-                            type="object"
-                            string="Approve"
-                            class="oe_highlight"
-                            invisible="state != 'to_approve'"/>
-
-                    <button name="action_create_sale_order"
-                            type="object"
-                            string="Create Sales Order"
-                            class="oe_highlight"
-                            invisible="state != 'approved'"/>
-
-                    <button name="action_create_purchase_orders"
-                            type="object"
-                            string="Create Purchase Orders"
-                            class="oe_highlight"
-                            invisible="state != 'approved'"/>
-
-
-                    <button name="action_request_revision"
-                            type="object"
-                            string="Request Revision"
-                            class="oe_highlight"
-                            invisible="state != 'to_approve'"/>
-                    <!-- Vendor Matrix Button -->
-                    <button name="action_open_vendor_matrix"
-                            type="object"
-                            string="Vendor Matrix"
+                            string="Simpan Draft"
                             class="btn-secondary"
-                            invisible="state == 'draft'"/>                    
+                            help="Simpan data tanpa mengonfirmasi RAB"/>
 
-                    <field name="state"
-                           widget="statusbar"
-                           statusbar_visible="draft,confirmed,to_approve,revision,approved"/>
-                </header>
+                        <button name="action_confirm"
+                                type="object"
+                                string="Confirm RAB"
+                                class="oe_highlight"
+                                invisible="state != 'draft'"/>
 
-                <sheet>
+                        <button name="action_send_for_approval"
+                                type="object"
+                                string="Send for Approval"
+                                class="oe_highlight"
+                                invisible="state not in ('confirmed','revision')"/>
 
-                    <!-- HEADER INFO -->
-                    <group>
-                        <field name="name" readonly="1"/>
-                        <field name="date" readonly="state != 'draft'"/>
-                        <field name="customer_id" readonly="state != 'draft'"/>
-                        <field name="state" readonly="1"/>
-                    </group>
+                        <button name="action_approve"
+                                type="object"
+                                string="Approve"
+                                class="oe_highlight"
+                                invisible="state != 'to_approve'"/>
 
-                    <!-- NOTEBOOK -->
-                    <notebook>
+                        <button name="action_create_sale_order"
+                                type="object"
+                                string="Create Sales Order"
+                                class="oe_highlight"
+                                invisible="state != 'approved'"/>
 
-                        <!-- RAB LINES -->
-                        <page string="RAB Lines">
-                            <field name="line_ids">
+                        <button name="action_create_purchase_orders"
+                                type="object"
+                                string="Create Purchase Orders"
+                                class="oe_highlight"
+                                invisible="state != 'approved'"/>
 
-                                <!-- LIST (EXCEL STYLE) -->
-                                <list editable="bottom">
-                                    <field name="product_id"
-                                           options="{'no_open': True}"
-                                           readonly="is_locked"/>
 
-                                    <field name="quantity"
-                                           readonly="is_locked"/>
+                        <button name="action_request_revision"
+                                type="object"
+                                string="Request Revision"
+                                class="oe_highlight"
+                                invisible="state != 'to_approve'"/>
+                        <!-- Vendor Matrix Button -->
+                        <button name="action_open_vendor_matrix"
+                                type="object"
+                                string="Vendor Matrix"
+                                class="btn-secondary"
+                                invisible="state == 'draft'"/>                    
 
-                                    <field name="chosen_vendor_id" readonly="1"/>
-                                    <field name="purchase_price" readonly="1"/>
+                        <field name="state"
+                            widget="statusbar"
+                            statusbar_visible="draft,confirmed,to_approve,revision,approved"/>
+                    </header>
 
-                                    <field name="margin_type"
-                                           readonly="is_locked"/>
-                                    <field name="margin_value"
-                                           readonly="is_locked"/>
+                    <sheet>
 
-                                    <field name="sale_price" readonly="1"/>
-                                    <field name="subtotal" readonly="1"/>
+                        <!-- HEADER INFO -->
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="customer_id" readonly="state != 'draft'"/>
+                            <field name="state" readonly="1"/>
+                        </group>
 
-                                    <button name="action_open_rab_line"
-                                            type="object"
-                                            string="Vendor"
-                                            icon="fa-external-link"
-                                            class="oe_highlight"
-                                            context="{'force_save': True}"
+                        <!-- NOTEBOOK -->
+                        <notebook>
+
+                            <!-- RAB LINES -->
+                            <page string="RAB Lines">
+                                <field name="line_ids">
+
+                                    <!-- LIST (EXCEL STYLE) -->
+                                    <list editable="bottom">
+                                        <field name="product_id"
+                                            options="{'no_open': True}"
                                             readonly="is_locked"/>
-                                </list>
 
-                                <!-- FORM (DETAIL LINE) -->
-                                <form>
-                                    <group>
-                                        <field name="product_id" readonly="is_locked"/>
-                                        <field name="quantity" readonly="is_locked"/>
-                                    </group>
+                                        <field name="quantity"
+                                            readonly="is_locked"/>
 
-                                    <group>
                                         <field name="chosen_vendor_id" readonly="1"/>
                                         <field name="purchase_price" readonly="1"/>
-                                    </group>
 
-                                    <group>
-                                        <field name="margin_type" readonly="is_locked"/>
-                                        <field name="margin_value" readonly="is_locked"/>
+                                        <field name="margin_type"
+                                            readonly="is_locked"/>
+                                        <field name="margin_value"
+                                            readonly="is_locked"/>
+
                                         <field name="sale_price" readonly="1"/>
-                                    </group>
+                                        <field name="subtotal" readonly="1"/>
 
-                                    <notebook>
-                                        <page string="Vendor Comparison">
-                                            <field name="vendor_line_ids"
-                                                   readonly="is_locked">
-                                                <list editable="bottom">
-                                                    <field name="vendor_id"/>
-                                                    <field name="price"/>
-                                                    <field name="is_selected"/>
-                                                </list>
-                                            </field>
-                                        </page>
-                                    </notebook>
-                                </form>
+                                        <button name="action_open_rab_line"
+                                                type="object"
+                                                string="Vendor"
+                                                icon="fa-external-link"
+                                                class="oe_highlight"
+                                                context="{'force_save': True}"
+                                                readonly="is_locked"/>
+                                    </list>
 
-                            </field>
-                        </page>
-
-                        <!-- SALES ORDERS TAB -->
-                        <page string="Sales Orders">
-                            <field name="sale_order_ids">
-                                <list readonly="1">
-                                    <field name="name"/>
-                                    <field name="partner_id"/>
-                                    <field name="date_order"/>
-                                    <field name="amount_total"/>
-                                    <field name="state"/>
-                                </list>
-                            </field>
-                        </page>
-
-                        <!-- PURCHASE ORDERS TAB -->
-                        <page string="Purchase Orders">
-                            <field name="purchase_order_ids">
-                                <list readonly="1">
-                                    <field name="name"/>
-                                    <field name="partner_id"/>
-                                    <field name="date_order"/>
-                                    <field name="amount_total"/>
-                                    <field name="state"/>
-                                </list>
-                            </field>
-                        </page>
+                                    <!-- FORM (DETAIL LINE) -->
+                                    <form>
+                                        <group>
+                                            <field name="product_id" readonly="is_locked"/>
+                                            <field name="quantity" readonly="is_locked"/>
+                                        </group>
 
 
 
-                    </notebook>
+                                        <group>
+                                            <field name="margin_type" readonly="is_locked"/>
+                                            <field name="margin_value" readonly="is_locked"/>
+                                            <field name="sale_price" readonly="1"/>
+                                        </group>
 
-                    <!-- TOTAL -->
-                    <group>
-                        <field name="total_amount" readonly="1"/>
-                    </group>
+                                        <notebook>
+                                            <page string="Vendor Comparison">
+                                                <field name="vendor_line_ids"
+                                                    readonly="is_locked">
+                                                    <list editable="bottom">
 
-                    <field name="revision_note"
-                        placeholder="Reason for revision..."
-                        invisible="state != 'revision'"/>
+                                                        <!-- CORE -->
+                                                        <field name="vendor_id"/>
+                                                        <field name="price"/>
+
+                                                        <!-- STATUS (READONLY, OPTIONAL) -->
+                                                        <field name="vendor_state" readonly="1"/>
+
+                                                        <!-- ACTION: ADD TO NEGOTIATION -->
+                                                        <button name="action_set_negotiation"
+                                                                type="object"
+                                                                string="Add to Negotiation"
+                                                                class="btn-secondary o_button_icon"
+                                                                invisible="vendor_state != 'draft'"/>
+
+                                                        <!-- ACTION: SET FINAL -->
+                                                        <button name="action_set_final"
+                                                                type="object"
+                                                                string="Select Final"
+                                                                class="btn-success o_button_icon"
+                                                                invisible="vendor_state != 'negotiation'"/>
+
+                                                    </list>
+                                                </field>
+                                            </page>
+
+                                        </notebook>
+                                    </form>
+
+                                </field>
+                            </page>
+
+                            <!-- SALES ORDERS TAB -->
+                            <page string="Sales Orders">
+                                <field name="sale_order_ids">
+                                    <list readonly="1">
+                                        <field name="name"/>
+                                        <field name="partner_id"/>
+                                        <field name="date_order"/>
+                                        <field name="amount_total"/>
+                                        <field name="state"/>
+                                    </list>
+                                </field>
+                            </page>
+
+                            <!-- PURCHASE ORDERS TAB -->
+                            <page string="Purchase Orders">
+                                <field name="purchase_order_ids">
+                                    <list readonly="1">
+                                        <field name="name"/>
+                                        <field name="partner_id"/>
+                                        <field name="date_order"/>
+                                        <field name="amount_total"/>
+                                        <field name="state"/>
+                                    </list>
+                                </field>
+                            </page>
 
 
-                </sheet>
-            </form>
-        </field>
-    </record>
 
-</odoo>
+                        </notebook>
+
+                        <!-- TOTAL -->
+                        <group>
+                            <field name="total_amount" readonly="1"/>
+                        </group>
+
+                        <field name="revision_note"
+                            placeholder="Reason for revision..."
+                            invisible="state != 'revision'"/>
+
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </odoo>

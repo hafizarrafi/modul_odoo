@@ -7,37 +7,42 @@ class RabManagement(models.Model):
     _description = 'RAB Management'
     _order = 'id desc'
 
-    # FIELDS YANG DIBUTUHKAN
+    # ------------------------------------------------------------------
+    # Informasi dasar RAB
+    # ------------------------------------------------------------------
 
     name = fields.Char(
-        string='RAB Number',
+        string='Nomor RAB',
         required=True,
         copy=False,
         default='New'
     )
 
     date = fields.Date(
+        string='Tanggal',
         default=fields.Date.today
     )
 
-
-# coba revisi
-    state = fields.Selection([
-        ('draft', 'Draft'),
-        ('confirmed', 'Confirmed'),
-        ('to_approve', 'Waiting Approval'),
-        ('revision', 'Revision'),
-        ('approved', 'Approved'),
-    ], default='draft', tracking=True
-    )
-
-    revision_note = fields.Text(
-        string="Revision Note",
+    # Status workflow RAB
+    state = fields.Selection(
+        [
+            ('draft', 'Draft'),
+            ('confirmed', 'Confirmed'),
+            ('to_approve', 'Menunggu Persetujuan'),
+            ('revision', 'Revisi'),
+            ('approved', 'Disetujui'),
+        ],
+        default='draft',
         tracking=True
     )
 
+    # Catatan revisi dari approver
+    revision_note = fields.Text(
+        string="Catatan Revisi",
+        tracking=True
+    )
 
-
+    # Customer tujuan penawaran
     customer_id = fields.Many2one(
         'res.partner',
         string='Customer',
@@ -45,14 +50,18 @@ class RabManagement(models.Model):
         domain=[('contact_type', 'in', ['customer', 'both'])],
     )
 
+    # ------------------------------------------------------------------
+    # Detail RAB
+    # ------------------------------------------------------------------
 
     line_ids = fields.One2many(
         'rab.management.line',
         'rab_id',
-        string='RAB Lines'
+        string='Detail RAB'
     )
 
     total_amount = fields.Monetary(
+        string='Total',
         compute='_compute_total',
         store=True
     )
@@ -63,12 +72,18 @@ class RabManagement(models.Model):
         required=True
     )
 
+    # ------------------------------------------------------------------
+    # Relasi ke dokumen turunan
+    # ------------------------------------------------------------------
+
+    # Sales Order utama yang dibuat dari RAB
     sale_order_id = fields.Many2one(
         'sale.order',
         string='Sales Order',
         readonly=True
     )
 
+    # Semua Sales Order yang berasal dari RAB ini
     sale_order_ids = fields.One2many(
         'sale.order',
         compute='_compute_sale_orders',
@@ -76,6 +91,7 @@ class RabManagement(models.Model):
         readonly=True,
     )
 
+    # Semua Purchase Order yang berasal dari RAB ini
     purchase_order_ids = fields.One2many(
         'purchase.order',
         compute='_compute_purchase_orders',
@@ -83,33 +99,35 @@ class RabManagement(models.Model):
         readonly=True,
     )
 
-    
+    # ------------------------------------------------------------------
+    # Workflow actions
+    # ------------------------------------------------------------------
 
-
-    # WORKFLOW YANG DISEDIAKAN
     def action_save_draft(self):
+        """Digunakan untuk menyimpan ulang RAB tanpa mengubah state."""
         self.ensure_one()
         self.write({})
         return True
-
 
     def action_confirm(self):
         for rec in self:
             if rec.state != 'draft':
                 return
 
+            # Validasi dasar sebelum konfirmasi
             if not rec.customer_id:
-                raise UserError("Customer must be set.")
+                raise UserError("Customer harus diisi.")
 
             if not rec.line_ids:
-                raise UserError("Cannot confirm RAB without lines.")
+                raise UserError("RAB tidak dapat dikonfirmasi tanpa detail.")
 
+            # Semua baris harus sudah memiliki vendor terpilih
             no_vendor_lines = rec.line_ids.filtered(
                 lambda l: not l.chosen_vendor_id
             )
             if no_vendor_lines:
                 raise UserError(
-                    "All RAB lines must have a selected vendor before confirmation."
+                    "Semua baris RAB harus memiliki vendor terpilih sebelum konfirmasi."
                 )
 
             rec.state = 'confirmed'
@@ -125,36 +143,44 @@ class RabManagement(models.Model):
             if rec.state != 'to_approve':
                 return
 
+            # Contoh pembatasan hak approve (sementara: admin saja)
             if not self.env.user.has_group('base.group_system'):
-                raise UserError("Only Administrator can approve RAB.")
+                raise UserError("Hanya Administrator yang dapat menyetujui RAB.")
 
             rec.state = 'approved'
-    
 
-    
-    # PEMBUATAN SALES ORDER DARI RAB
+    def action_request_revision(self):
+        """Mengembalikan RAB ke tahap revisi."""
+        self.ensure_one()
+        self.state = 'revision'
+
+    # ------------------------------------------------------------------
+    # Pembuatan Sales Order dari RAB
+    # ------------------------------------------------------------------
 
     def action_create_sale_order(self):
         self.ensure_one()
 
         if self.state != 'approved':
-            raise UserError("RAB must be approved before creating Sales Order.")
+            raise UserError("RAB harus disetujui sebelum membuat Sales Order.")
 
         if self.sale_order_id:
-            raise UserError("Sales Order already created for this RAB.")
+            raise UserError("Sales Order untuk RAB ini sudah dibuat.")
 
         SaleOrder = self.env['sale.order']
         SaleOrderLine = self.env['sale.order.line']
 
+        # Buat SO header
         so = SaleOrder.create({
             'partner_id': self.customer_id.id,
             'origin': self.name,
         })
 
+        # Buat SO line dari setiap baris RAB
         for line in self.line_ids:
             if not line.sale_price:
                 raise UserError(
-                    f"Sale price is not set for product {line.product_id.display_name}"
+                    f"Harga jual belum ditentukan untuk produk {line.product_id.display_name}"
                 )
 
             SaleOrderLine.create({
@@ -165,9 +191,10 @@ class RabManagement(models.Model):
                 'name': line.name,
             })
 
-            self.with_context(allow_approved_write=True).write({
-                'sale_order_id': so.id
-            })
+        # Simpan referensi SO ke RAB (diizinkan meski RAB sudah approved)
+        self.with_context(allow_approved_write=True).write({
+            'sale_order_id': so.id
+        })
 
         return {
             'type': 'ir.actions.act_window',
@@ -177,26 +204,27 @@ class RabManagement(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
-    
-    
-    # PEMBUATAN PURCHASE ORDER DARI RAB
+
+    # ------------------------------------------------------------------
+    # Pembuatan Purchase Order dari RAB
+    # ------------------------------------------------------------------
 
     def action_create_purchase_orders(self):
         self.ensure_one()
 
         if self.state != 'approved':
-            raise UserError("RAB must be approved before creating Purchase Orders.")
+            raise UserError("RAB harus disetujui sebelum membuat Purchase Order.")
 
         PurchaseOrder = self.env['purchase.order']
         PurchaseOrderLine = self.env['purchase.order.line']
 
-        # === KUMPULKAN LINE PER VENDOR ===
+        # Kelompokkan baris RAB berdasarkan vendor
         vendor_map = {}
 
         for line in self.line_ids:
             if not line.chosen_vendor_id:
                 raise UserError(
-                    f"Line {line.product_id.display_name} has no selected vendor."
+                    f"Produk {line.product_id.display_name} belum memiliki vendor terpilih."
                 )
 
             vendor = line.chosen_vendor_id
@@ -204,10 +232,10 @@ class RabManagement(models.Model):
 
         created_pos = self.env['purchase.order']
 
-        # === BUAT PO PER VENDOR ===
+        # Buat satu PO untuk setiap vendor
         for vendor, lines in vendor_map.items():
 
-            # PENGECEKAN DUPLIKAT PO DARI VENDOR YANG SAMA
+            # Cegah duplikasi PO untuk vendor yang sama
             existing_po = PurchaseOrder.search([
                 ('origin', '=', self.name),
                 ('partner_id', '=', vendor.id),
@@ -215,7 +243,7 @@ class RabManagement(models.Model):
 
             if existing_po:
                 raise UserError(
-                    f"Purchase Order for vendor {vendor.display_name} already exists."
+                    f"Purchase Order untuk vendor {vendor.display_name} sudah ada."
                 )
 
             po = PurchaseOrder.create({
@@ -226,7 +254,7 @@ class RabManagement(models.Model):
             for line in lines:
                 if not line.purchase_price:
                     raise UserError(
-                        f"Purchase price not set for product {line.product_id.display_name}"
+                        f"Harga beli belum ditentukan untuk produk {line.product_id.display_name}"
                     )
 
                 PurchaseOrderLine.create({
@@ -240,7 +268,7 @@ class RabManagement(models.Model):
 
             created_pos |= po
 
-        # TAMPILKAN DAFTAR PO YANG DIBUAT
+        # Tampilkan daftar PO yang berhasil dibuat
         return {
             'type': 'ir.actions.act_window',
             'name': 'Purchase Orders',
@@ -249,13 +277,15 @@ class RabManagement(models.Model):
             'domain': [('id', 'in', created_pos.ids)],
         }
 
-    
+    # ------------------------------------------------------------------
+    # Compute helpers
+    # ------------------------------------------------------------------
+
     def _compute_sale_orders(self):
         for rec in self:
             rec.sale_order_ids = self.env['sale.order'].search([
                 ('origin', '=', rec.name)
             ])
-
 
     def _compute_purchase_orders(self):
         for rec in self:
@@ -263,34 +293,32 @@ class RabManagement(models.Model):
                 ('origin', '=', rec.name)
             ])
 
-
- 
-    # KUNCI WRITE OVERRIDE KETIKA APPROVED
-
-    def write(self, vals):
-            for rec in self:
-                if rec.state == 'approved':
-                    if self.env.context.get('allow_approved_write'):
-                        continue
-
-                    forbidden_fields = set(vals.keys()) - {'sale_order_id'}
-                    if forbidden_fields:
-                        raise UserError("Approved RAB cannot be modified.")
-
-            return super().write(vals)
-
-
- 
-    # COMPUTE
-  
     @api.depends('line_ids.subtotal')
     def _compute_total(self):
         for rec in self:
             rec.total_amount = sum(rec.line_ids.mapped('subtotal'))
 
-  
-    # SEQUENCE
-   
+    # ------------------------------------------------------------------
+    # Proteksi write saat RAB sudah disetujui
+    # ------------------------------------------------------------------
+
+    def write(self, vals):
+        for rec in self:
+            if rec.state == 'approved':
+                # Izinkan update terbatas (misalnya set sale_order_id)
+                if self.env.context.get('allow_approved_write'):
+                    continue
+
+                forbidden_fields = set(vals.keys()) - {'sale_order_id'}
+                if forbidden_fields:
+                    raise UserError("RAB yang sudah disetujui tidak dapat diubah.")
+
+        return super().write(vals)
+
+    # ------------------------------------------------------------------
+    # Sequence
+    # ------------------------------------------------------------------
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -299,22 +327,21 @@ class RabManagement(models.Model):
                     'rab.management'
                 ) or 'New'
         return super().create(vals_list)
-    
 
-    # coba fitur matrix vendor
+    # ------------------------------------------------------------------
+    # Tampilan matrix vendor (pivot)
+    # ------------------------------------------------------------------
+
     def action_open_vendor_matrix(self):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Vendor Matrix',
+            'name': 'Matriks Vendor',
             'res_model': 'rab.vendor.comparison',
             'view_mode': 'pivot',
-            'view_id': self.env.ref('rab_management.view_rab_vendor_comparison_pivot').id,
+            'view_id': self.env.ref(
+                'rab_management.view_rab_vendor_comparison_pivot'
+            ).id,
             'domain': [('rab_id', '=', self.id)],
-            'target': 'current',  # atau 'new' kalau mau popup
+            'target': 'current',
         }
-    
-    # coba fitur revision
-    def action_request_revision(self):
-        self.ensure_one()
-        self.state = 'revision'
