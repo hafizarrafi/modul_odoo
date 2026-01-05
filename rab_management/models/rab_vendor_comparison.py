@@ -121,10 +121,6 @@ class RabVendorComparison(models.Model):
 
     @api.model
     def auto_populate_from_last_purchase(self, rab_line):
-        """
-        Menambahkan atau memperbarui daftar vendor berdasarkan histori
-        pembelian terakhir. Dipicu saat user membuka vendor comparison.
-        """
         product = rab_line.product_id
         if not product:
             return
@@ -204,25 +200,25 @@ class RabVendorComparison(models.Model):
         ], limit=1)
 
         if existing_final:
-            raise UserError(
-                "Vendor final sudah dipilih."
-            )
+            raise UserError("Vendor final sudah dipilih.")
 
-        negotiation_vendors = self.search([
+        # Minimal 2 vendor pernah masuk negosiasi
+        negotiation_count = self.search_count([
             ('rab_line_id', '=', rab_line.id),
-            ('vendor_state', '=', 'negotiation')
+            ('vendor_state', '=', 'negotiation'),
         ])
 
-        # Minimal harus ada 2 vendor untuk dibandingkan
-        if len(negotiation_vendors) < 2:
+        if negotiation_count < 2:
             raise UserError(
                 "Minimal harus ada 2 vendor dalam tahap negosiasi."
             )
 
-        # Vendor lain dianggap tidak terpilih
-        (negotiation_vendors - self).write({
-            'vendor_state': 'cancelled'
-        })
+        # SEMUA vendor lain set ke cancelled
+        other_vendors = self.search([
+            ('rab_line_id', '=', rab_line.id),
+            ('id', '!=', self.id),
+        ])
+        other_vendors.write({'vendor_state': 'cancelled'})
 
         # Set vendor ini sebagai final
         self.write({'vendor_state': 'final'})
@@ -233,6 +229,7 @@ class RabVendorComparison(models.Model):
             'purchase_price': self.negotiation_price,
             'vendor_comparison_stage': 'selected',
         })
+
 
     def action_reset_final(self):
         self.ensure_one()
