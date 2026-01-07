@@ -6,6 +6,7 @@
     'author': 'YourCompany',
     'depends': [
         'base',
+        'web',
         'product',
         'contacts',
         'sale',       
@@ -24,15 +25,18 @@
     'application': True,
     'license': 'LGPL-3',
 
-    'assets': {
+   'assets': {
         'web.assets_backend': [
             'rab_management/static/src/owl/actions/rab_vendor_comparison.js',
+            'rab_management/static/src/owl/services/rab_service.js',
             'rab_management/static/src/owl/components/vendor_matrix/vendor_matrix.js',
             'rab_management/static/src/owl/xml/rab_vendor_comparison.xml',
             'rab_management/static/src/owl/components/vendor_matrix/vendor_matrix.xml',
             'rab_management/static/src/scss/rab_vendor_comparison.scss',
         ],
     },
+
+
 
 
 

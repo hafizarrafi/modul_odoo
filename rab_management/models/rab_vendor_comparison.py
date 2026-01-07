@@ -183,17 +183,14 @@ class RabVendorComparison(models.Model):
         self.ensure_one()
         rab_line = self.rab_line_id
 
-        # Hanya vendor dalam tahap negosiasi yang bisa dipilih
         if self.vendor_state != 'negotiation':
-            return
-
-        # Harga negosiasi wajib diisi
-        if not self.negotiation_price:
             raise UserError(
-                "Harap isi harga negosiasi sebelum memilih vendor final."
+                f"Vendor state tidak valid: {self.vendor_state}. Harus 'negotiation'."
             )
 
-        # Pastikan belum ada vendor final lain
+        if not self.negotiation_price:
+            self.negotiation_price = self.price
+
         existing_final = self.search([
             ('rab_line_id', '=', rab_line.id),
             ('vendor_state', '=', 'final'),
@@ -202,34 +199,26 @@ class RabVendorComparison(models.Model):
         if existing_final:
             raise UserError("Vendor final sudah dipilih.")
 
-        # Minimal 2 vendor pernah masuk negosiasi
         negotiation_count = self.search_count([
             ('rab_line_id', '=', rab_line.id),
             ('vendor_state', '=', 'negotiation'),
         ])
 
         if negotiation_count < 2:
-            raise UserError(
-                "Minimal harus ada 2 vendor dalam tahap negosiasi."
-            )
+            raise UserError("Minimal harus ada 2 vendor dalam tahap negosiasi.")
 
-        # SEMUA vendor lain set ke cancelled
-        other_vendors = self.search([
+        self.search([
             ('rab_line_id', '=', rab_line.id),
             ('id', '!=', self.id),
-        ])
-        other_vendors.write({'vendor_state': 'cancelled'})
+        ]).write({'vendor_state': 'cancelled'})
 
-        # Set vendor ini sebagai final
         self.write({'vendor_state': 'final'})
 
-        # Sinkronkan hasil ke RAB Line
         rab_line.write({
             'chosen_vendor_id': self.vendor_id.id,
             'purchase_price': self.negotiation_price,
             'vendor_comparison_stage': 'selected',
         })
-
 
     def action_reset_final(self):
         self.ensure_one()

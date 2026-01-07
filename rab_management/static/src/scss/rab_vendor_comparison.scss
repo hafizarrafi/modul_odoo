@@ -1,0 +1,26 @@
+.rab-vendor-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+  }
+
+  th {
+    background: #f7f7f7;
+    font-weight: 600;
+  }
+
+  .sticky-col {
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 2;
+  }
+
+  .sticky-col.qty {
+    left: 180px;
+  }
+}

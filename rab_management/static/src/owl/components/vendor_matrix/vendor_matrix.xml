@@ -1,44 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <t t-name="rab_management.VendorMatrix">
-        <table class="table table-bordered table-sm align-middle">
+<t t-name="rab_management.VendorMatrix">
 
-            <thead class="table-light">
+    <t t-if="state.loading">
+        <div class="p-3 text-muted">Loading...</div>
+    </t>
+
+    <t t-else="">
+        <table class="table table-bordered table-sm align-middle">
+            <thead>
                 <tr>
-                    <th rowspan="2">Item</th>
-                    <th rowspan="2" class="text-center">Qty</th>
-                    <th colspan="2" class="text-center">Vendor A</th>
-                    <th colspan="2" class="text-center">Vendor B</th>
+                    <th>Item</th>
+                    <th class="text-center">Qty</th>
+                    <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
+                        <th colspan="3" class="text-center">
+                            <t t-esc="vendor.name"/>
+                        </th>
+                    </t>
                 </tr>
                 <tr>
-                    <th class="text-center">Harga Awal</th>
-                    <th class="text-center">Harga Nego</th>
-                    <th class="text-center">Harga Awal</th>
-                    <th class="text-center">Harga Nego</th>
+                    <th/>
+                    <th/>
+                    <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
+                        <th class="text-center">Awal</th>
+                        <th class="text-center">Nego</th>
+                        <th/>
+                    </t>
                 </tr>
             </thead>
 
             <tbody>
-                <tr>
-                    <td>Kabel NYA</td>
-                    <td class="text-center">10</td>
-                    <td class="text-end">100.000</td>
-                    <td class="text-end">95.000</td>
-                    <td class="text-end">110.000</td>
-                    <td class="text-end">98.000</td>
-                </tr>
-                <tr>
-                    <td>Pipa PVC</td>
-                    <td class="text-center">5</td>
-                    <td class="text-end">200.000</td>
-                    <td class="text-end">190.000</td>
-                    <td class="text-end">210.000</td>
-                    <td class="text-end">200.000</td>
-                </tr>
-            </tbody>
+                <t t-foreach="state.items" t-as="item" t-key="item.id">
+                    <tr>
+                        <td>
+                            <t t-esc="item.name"/>
+                        </td>
 
+                        <td class="text-center">
+                            <t t-esc="item.qty"/>
+                        </td>
+
+                        <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
+
+                            <t t-set="priceLine" t-value="item.prices[vendor.id]"/>
+
+                            <!-- Harga Awal -->
+                            <td class="text-end">
+                                <t t-if="priceLine">
+                                    <t t-esc="formatPrice(priceLine.base)"/>
+                                </t>
+                                <t t-else="">-</t>
+                            </td>
+
+                            <!-- Harga Nego -->
+                            <td class="text-end">
+                                <t t-if="priceLine">
+                                    <t t-esc="formatPrice(priceLine.nego)"/>
+                                </t>
+                                <t t-else="">-</t>
+                            </td>
+
+                            <!-- Action -->
+                            <td class="text-center">
+
+                                <!-- DRAFT → NEGOTIATION -->
+                                <button
+                                    t-if="priceLine and priceLine.vendor_state == 'draft'"
+                                    class="btn btn-sm btn-outline-primary"
+                                    t-on-click="onSetNegotiation"
+                                    t-att-data-id="priceLine.id">
+                                    Mulai Nego
+                                </button>
+
+                                <!-- NEGOTIATION → FINAL -->
+                                <button
+                                    t-if="priceLine and priceLine.vendor_state == 'negotiation'"
+                                    class="btn btn-sm btn-success"
+                                    t-on-click="onSelectVendor"
+                                    t-att-data-id="priceLine.id">
+                                    Pilih
+                                </button>
+
+                                <!-- FINAL -->
+                                <span
+                                    t-if="priceLine and priceLine.vendor_state == 'final'"
+                                    class="badge bg-success">
+                                    Final
+                                </span>
+
+                            </td>
+
+                        </t>
+                    </tr>
+                </t>
+            </tbody>
         </table>
     </t>
+
+</t>
 
 </templates>
