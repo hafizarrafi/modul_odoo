@@ -79,7 +79,13 @@
                                 type="object"
                                 string="Vendor Matrix"
                                 class="btn-secondary"
-                                invisible="state == 'draft'"/>                    
+                                invisible="state == 'draft'"/>
+                        <button name="%(action_rab_vendor_comparison_owl)d"
+                                type="action"
+                                string="Vendor Comparison (OWL)"
+                                class="btn-secondary"
+                            />
+                    
 
                         <field name="state"
                             widget="statusbar"
@@ -228,5 +234,8 @@
                 </form>
             </field>
         </record>
+
+      
+
 
     </odoo>

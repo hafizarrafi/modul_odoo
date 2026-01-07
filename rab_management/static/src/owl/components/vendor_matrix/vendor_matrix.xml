@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="rab_management.VendorMatrix">
+        <table class="table table-bordered table-sm align-middle">
+
+            <thead class="table-light">
+                <tr>
+                    <th rowspan="2">Item</th>
+                    <th rowspan="2" class="text-center">Qty</th>
+                    <th colspan="2" class="text-center">Vendor A</th>
+                    <th colspan="2" class="text-center">Vendor B</th>
+                </tr>
+                <tr>
+                    <th class="text-center">Harga Awal</th>
+                    <th class="text-center">Harga Nego</th>
+                    <th class="text-center">Harga Awal</th>
+                    <th class="text-center">Harga Nego</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>Kabel NYA</td>
+                    <td class="text-center">10</td>
+                    <td class="text-end">100.000</td>
+                    <td class="text-end">95.000</td>
+                    <td class="text-end">110.000</td>
+                    <td class="text-end">98.000</td>
+                </tr>
+                <tr>
+                    <td>Pipa PVC</td>
+                    <td class="text-center">5</td>
+                    <td class="text-end">200.000</td>
+                    <td class="text-end">190.000</td>
+                    <td class="text-end">210.000</td>
+                    <td class="text-end">200.000</td>
+                </tr>
+            </tbody>
+
+        </table>
+    </t>
+
+</templates>

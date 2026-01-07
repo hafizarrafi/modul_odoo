@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="rab_management.RabVendorComparisonAction">
+        <div class="o_rab_vendor_comparison p-4">
+
+            <h2>RAB Vendor Comparison</h2>
+            <p class="text-muted">
+                Advanced vendor analysis interface
+            </p>
+
+            <div class="alert alert-info mt-3">
+                This screen displays all required items and vendor prices
+                for decision making. Backend logic remains unchanged.
+            </div>
+
+            <div class="mt-4">
+                <VendorMatrix/>
+            </div>
+
+        </div>
+    </t>
+
+</templates>

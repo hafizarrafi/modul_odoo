@@ -14,6 +14,7 @@
     'data': [
             'security/ir.model.access.csv',
             'data/ir_sequence_data.xml',
+            'views/rab_owl_actions.xml',
             'views/partner_view.xml',
             'views/rab_view.xml',
             'views/menu.xml',
@@ -22,6 +23,18 @@
     ],
     'application': True,
     'license': 'LGPL-3',
+
+    'assets': {
+        'web.assets_backend': [
+            'rab_management/static/src/owl/actions/rab_vendor_comparison.js',
+            'rab_management/static/src/owl/components/vendor_matrix/vendor_matrix.js',
+            'rab_management/static/src/owl/xml/rab_vendor_comparison.xml',
+            'rab_management/static/src/owl/components/vendor_matrix/vendor_matrix.xml',
+            'rab_management/static/src/scss/rab_vendor_comparison.scss',
+        ],
+    },
+
+
 
     
 
