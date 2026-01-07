@@ -1,24 +1,24 @@
-/* ===============================
+/* ======================================================
    SCROLL CONTAINER
-   =============================== */
+   ====================================================== */
 .vendor-matrix-scroll {
   width: 100%;
   overflow-x: auto;
   position: relative;
 }
 
-/* ===============================
+/* ======================================================
    TABLE BASE
-   =============================== */
+   ====================================================== */
 .rab-vendor-table {
-  /* layout constants */
+  /* ===== SINGLE SOURCE OF TRUTH ===== */
   --w-item: 220px;
   --w-qty: 80px;
   --w-summary-vendor: 200px;
   --w-summary-price: 110px;
   --w-price: 110px;
 
-  /* decision panel tone */
+  /* ===== DECISION PANEL TONE ===== */
   --decision-bg: #f3f7f5;
   --decision-bg-header: #eef5f2;
   --decision-divider: #dde5e2;
@@ -35,25 +35,25 @@
     background-clip: padding-box;
   }
 
-  /* ===============================
+  /* ======================================================
      HEADER
-     =============================== */
+     ====================================================== */
   thead th {
     position: sticky;
     top: 0;
-    z-index: 100;
-    background: #f8f9fa;
     border-bottom: 2px solid #dee2e6;
     font-weight: 600;
+    z-index: 100;
+    background: #f8f9fa;
   }
 
   tbody tr {
     border-bottom: 1px solid #eee;
   }
 
-  /* ===============================
-     COLUMN WIDTHS
-     =============================== */
+  /* ======================================================
+     COLUMN WIDTHS (ABSOLUTE)
+     ====================================================== */
   .item-col {
     width: var(--w-item);
     min-width: var(--w-item);
@@ -66,8 +66,10 @@
 
   .item-col .item-text {
     display: block;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .qty-col {
@@ -82,6 +84,7 @@
     width: var(--w-summary-vendor);
     min-width: var(--w-summary-vendor);
     max-width: var(--w-summary-vendor);
+    font-weight: 400;
     background: var(--decision-bg);
   }
 
@@ -102,9 +105,9 @@
     text-align: right;
   }
 
-  /* ===============================
+  /* ======================================================
      STICKY LEFT — BODY
-     =============================== */
+     ====================================================== */
   tbody td.item-col {
     left: 0;
     z-index: 50;
@@ -132,9 +135,9 @@
     z-index: 47;
   }
 
-  /* ===============================
-     STICKY LEFT — HEADER
-     =============================== */
+  /* ======================================================
+     STICKY LEFT — HEADER (MATCH BODY)
+     ====================================================== */
   thead th.item-col {
     left: 0;
     z-index: 120;
@@ -164,9 +167,9 @@
     border-right: 1px solid var(--decision-divider);
   }
 
-  /* ===============================
-     PRICE STATES
-     =============================== */
+  /* ======================================================
+     VISUAL STATES
+     ====================================================== */
   .price-text {
     font-size: 13px;
     color: #555;
@@ -201,9 +204,9 @@
     }
   }
 
-  /* ===============================
-     FINAL STATE
-     =============================== */
+  /* ======================================================
+     FINAL — DECISION STATE (CALM & SERIOUS)
+     ====================================================== */
   .final-box {
     display: flex;
     flex-direction: column;
@@ -231,3 +234,91 @@
     pointer-events: none;
   }
 }
+
+/* ======================================================
+   DARK MODE OVERRIDES (ODOO)
+   ====================================================== */
+body.o_dark {
+
+  .rab-vendor-table {
+    /* tone khusus dark */
+    --decision-bg: #1f232a;
+    --decision-bg-header: #252a32;
+    --decision-divider: #2f3540;
+  }
+
+  /* ===============================
+     STICKY DECISION PANEL
+     =============================== */
+  .rab-vendor-table .item-col,
+  .rab-vendor-table .qty-col,
+  .rab-vendor-table .summary-vendor-col,
+  .rab-vendor-table .summary-price-col {
+    background: #1f232a !important;
+    color: #e6e6e6;
+  }
+
+  /* header sticky */
+  .rab-vendor-table thead th.item-col,
+  .rab-vendor-table thead th.qty-col,
+  .rab-vendor-table thead th.summary-vendor-col,
+  .rab-vendor-table thead th.summary-price-col {
+    background: #252a32 !important;
+    border-bottom: 1px solid #2f3540;
+  }
+
+  /* ===============================
+     TABLE ROW DIVIDER
+     =============================== */
+  .rab-vendor-table tbody tr {
+    border-bottom: 1px solid #2f3540;
+  }
+
+  /* ===============================
+     TEXT STATES
+     =============================== */
+  .rab-vendor-table .price-text {
+    color: #b5b5b5;
+  }
+
+  /* ===============================
+     BEST STATE
+     =============================== */
+  .rab-vendor-table .price-best {
+    color: #9be7c4;
+    background: rgba(46, 204, 113, 0.25);
+  }
+
+  .rab-vendor-table .nego-input-wrapper.best input {
+    border-color: #2ecc71;
+    background: rgba(46, 204, 113, 0.18);
+    color: #eafff4;
+  }
+
+  .rab-vendor-table .best-badge {
+    background: #2ecc71;
+    color: #0b2e1a;
+  }
+
+  /* ===============================
+     FINAL STATE
+     =============================== */
+  .rab-vendor-table .final-badge {
+    background: rgba(46, 204, 113, 0.35);
+    color: #eafff4;
+  }
+
+  .rab-vendor-table .final-reset-btn {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+  }
+
+  /* ===============================
+     DIMMED
+     =============================== */
+  .rab-vendor-table .vendor-dimmed {
+    opacity: 0.4;
+    filter: grayscale(0.7);
+  }
+}
+
