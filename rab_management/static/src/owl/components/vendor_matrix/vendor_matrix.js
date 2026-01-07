@@ -29,17 +29,26 @@ export class VendorMatrix extends Component {
         const vendorMap = {};
         const itemMap = {};
 
+        // =========================
+        // INIT ITEMS
+        // =========================
         for (const line of lines) {
             itemMap[line.id] = {
                 id: line.id,
                 name: line.product_id[1],
                 qty: line.quantity,
                 prices: {},
-                bestPrice: null,
+
+                // 🔹 RINGKASAN (BARU)
+                selectedVendorId: null,
+                selectedVendorName: null,
+                selectedPrice: null,
             };
         }
 
-        // build prices
+        // =========================
+        // MAP VENDOR PRICES
+        // =========================
         for (const v of vendorLines) {
             const lineId = v.rab_line_id[0];
             const vendorId = v.vendor_id[0];
@@ -51,53 +60,70 @@ export class VendorMatrix extends Component {
 
             itemMap[lineId].prices[vendorId] = {
                 id: v.id,
+                vendor_id: vendorId, // 🔹 penting buat ringkasan
                 base: v.price,
                 nego: v.negotiation_price,
                 vendor_state: v.vendor_state,
                 isBest: false,
+                isDimmed: false,
             };
         }
 
-        // compute best negotiated price per item
+        // =========================
+        // COMPUTE BEST + DIM + FINAL SUMMARY
+        // =========================
         for (const item of Object.values(itemMap)) {
-            const candidates = Object.values(item.prices)
-                .filter(p => p.vendor_state !== 'draft' && p.nego);
+            const prices = Object.values(item.prices);
 
-            if (candidates.length) {
-                const best = Math.min(...candidates.map(p => p.nego));
-                item.bestPrice = best;
+            // ---- FINAL SUMMARY (PALING PENTING)
+            const finalLine = prices.find(p => p.vendor_state === "final");
+            if (finalLine) {
+                item.selectedVendorId = finalLine.vendor_id;
+                item.selectedVendorName = vendorMap[finalLine.vendor_id]?.name || "-";
+                item.selectedPrice = finalLine.nego;
+            }
 
-                for (const p of candidates) {
-                    if (p.nego === best) {
-                        p.isBest = true;
-                    }
-                }
+            // ---- BEST PRICE (NEGO STAGE)
+            const candidates = prices.filter(
+                p => p.vendor_state !== "draft" && p.nego > 0
+            );
+
+            if (!candidates.length) continue;
+
+            const bestValue = Math.min(...candidates.map(p => p.nego));
+
+            for (const p of candidates) {
+                p.isBest = p.nego === bestValue;
+
+                // DIM HANYA JIKA SUDAH ADA FINAL
+                p.isDimmed = Boolean(finalLine) && p.vendor_state !== "final";
             }
         }
 
+        // =========================
+        // ASSIGN STATE
+        // =========================
         this.state.vendors = Object.values(vendorMap);
         this.state.items = Object.values(itemMap);
     }
 
-
     async onChangeBasePrice(ev) {
         const id = Number(ev.target.dataset.id);
         const value = Number(ev.target.value);
-
         if (!id || isNaN(value)) return;
 
-        try {
-            await this.rabService.updateBasePrice(id, value);
-            await this.reloadMatrix();
-        } catch (err) {
-            console.error("Gagal update harga awal", err);
-            this.env.services.notification.add(
-                "Gagal menyimpan harga awal",
-                { type: "danger" }
-            );
-        }
+        await this.rabService.updateBasePrice(id, value);
+        await this.reloadMatrix();
     }
 
+    async onChangeNegotiationPrice(ev) {
+        const id = Number(ev.target.dataset.id);
+        const value = Number(ev.target.value);
+        if (!id || isNaN(value)) return;
+
+        await this.rabService.updateNegotiationPrice(id, value);
+        await this.reloadMatrix();
+    }
 
     async onSetNegotiation(ev) {
         const id = Number(ev.currentTarget.dataset.id);
@@ -119,51 +145,13 @@ export class VendorMatrix extends Component {
         const id = Number(ev.currentTarget.dataset.id);
         if (!id) return;
 
-        try {
-            await this.rabService.resetFinal(id);
-            await this.reloadMatrix();
-        } catch (err) {
-            console.error("Gagal reset final vendor", err);
-            this.env.services.notification.add(
-                "Gagal reset vendor final",
-                { type: "danger" }
-            );
-        }
+        await this.rabService.resetFinal(id);
+        await this.reloadMatrix();
     }
-
 
     formatPrice(value) {
         return value ? value.toLocaleString("id-ID") : "-";
     }
-
-    async onChangeNegotiationPrice(ev) {
-        const vendorLineId = Number(ev.target.dataset.id);
-        const value = Number(ev.target.value);
-
-        if (!vendorLineId || isNaN(value)) {
-            return;
-        }
-
-        try {
-            await this.rabService.updateNegotiationPrice(
-                vendorLineId,
-                value
-            );
-
-            const { lines, vendorLines } =
-                await this.rabService.fetchVendorMatrix(this.props.rabId);
-
-            this.buildMatrix(lines, vendorLines);
-
-        } catch (err) {
-            console.error("Gagal update harga negosiasi", err);
-            this.env.services.notification.add(
-                "Gagal menyimpan harga negosiasi",
-                { type: "danger" }
-            );
-        }
-    }
-
 }
 
 VendorMatrix.template = "rab_management.VendorMatrix";

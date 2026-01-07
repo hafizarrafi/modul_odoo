@@ -7,137 +7,165 @@
         <div class="p-3 text-muted">Loading...</div>
     </t>
 
-    <t t-else="">
-
-        <!-- SCROLL CONTAINER -->
+    <t t-if="!state.loading">
         <div class="vendor-matrix-scroll">
 
-            <table class="table table-sm align-middle rab-vendor-table">
+            <table class="rab-vendor-table table table-sm align-middle">
 
+                <!-- ================= HEADER ================= -->
+                <!-- HEADER -->
                 <thead>
-                    <tr>
-                        <th class="item-col">Item</th>
-                        <th class="qty-col text-center">Qty</th>
+                <tr>
+                    <th class="item-col">Item</th>
+                    <th class="qty-col">Qty</th>
+                    <th class="summary-vendor-col">Vendor Terpilih</th>
+                    <th class="summary-price-col text-end">Harga Terpilih</th>
 
-                        <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
-                            <th colspan="3" class="text-center vendor-col">
-                                <t t-esc="vendor.name"/>
-                            </th>
-                        </t>
-                    </tr>
+                    <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
+                    <th colspan="3" class="text-center vendor-col">
+                        <t t-esc="vendor.name"/>
+                    </th>
+                    </t>
+                </tr>
 
-                    <tr>
-                        <th class="item-col"/>
-                        <th class="qty-col"/>
+                <tr>
+                    <th class="item-col"/>
+                    <th class="qty-col"/>
+                    <th class="summary-vendor-col"/>
+                    <th class="summary-price-col"/>
 
-                        <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
-                            <th class="text-center price-col">Awal</th>
-                            <th class="text-center price-col">Nego</th>
-                            <th class="action-col"/>
-                        </t>
-                    </tr>
+                    <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
+                    <th class="price-col text-center">Awal</th>
+                    <th class="price-col text-center">Nego</th>
+                    <th class="action-col"/>
+                    </t>
+                </tr>
                 </thead>
 
+
+                <!-- ================= BODY ================= -->
                 <tbody>
                     <t t-foreach="state.items" t-as="item" t-key="item.id">
                         <tr>
 
                             <!-- ITEM -->
                             <td class="item-col">
-                                <t t-esc="item.name"/>
+                                <span class="item-text" t-att-title="item.name">
+                                    <t t-esc="item.name"/>
+                                </span>
                             </td>
+
 
                             <!-- QTY -->
                             <td class="qty-col text-center">
                                 <t t-esc="item.qty"/>
                             </td>
 
-                            <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
+                            <!-- SUMMARY: VENDOR -->
+                            <td class="summary-vendor-col">
+                                <t t-if="item.selectedVendorName">
+                                    <span class="final-vendor">
+                                        <t t-esc="item.selectedVendorName"/>
+                                    </span>
+                                </t>
+                                <t t-if="!item.selectedVendorName">-</t>
+                            </td>
 
+                            <!-- SUMMARY: PRICE -->
+                            <td class="summary-price-col text-end">
+                                <t t-if="item.selectedPrice">
+                                    <span class="final-price">
+                                        <t t-esc="formatPrice(item.selectedPrice)"/>
+                                    </span>
+                                </t>
+                                <t t-if="!item.selectedPrice">-</t>
+                            </td>
+
+                            <!-- ================= MATRIX ================= -->
+                            <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
                                 <t t-set="priceLine" t-value="item.prices[vendor.id]"/>
 
-                                <!-- HARGA AWAL -->
-                                <td class="text-end price-col">
+                                <!-- AWAL -->
+                                <td class="price-col text-end">
                                     <input
                                         t-if="priceLine and priceLine.vendor_state == 'draft'"
                                         type="number"
                                         class="form-control form-control-sm text-end"
                                         t-att-value="priceLine.base"
-                                        t-on-change="onChangeBasePrice"
-                                        t-att-data-id="priceLine.id"/>
+                                        t-att-data-id="priceLine.id"
+                                        t-on-change="onChangeBasePrice"/>
 
                                     <t t-if="!priceLine or priceLine.vendor_state != 'draft'">
                                         <t t-esc="formatPrice(priceLine and priceLine.base)"/>
                                     </t>
                                 </td>
 
-                                <!-- HARGA NEGO -->
-                                <td class="text-end price-col">
-
+                                <!-- NEGO -->
+                                <td
+                                    class="price-col text-end"
+                                    t-att-class="priceLine and priceLine.isDimmed ? 'vendor-dimmed' : ''"
+                                >
                                     <div
                                         t-if="priceLine and priceLine.vendor_state == 'negotiation'"
-                                        t-att-class="
-                                            'nego-input-wrapper ' +
-                                            (priceLine.isBest ? 'best' : '')
-                                        "
+                                        t-att-class="'nego-input-wrapper ' + (priceLine.isBest ? 'best' : '')"
                                     >
                                         <input
                                             type="number"
                                             class="form-control form-control-sm text-end"
                                             t-att-value="priceLine.nego"
-                                            t-on-change="onChangeNegotiationPrice"
-                                            t-att-data-id="priceLine.id"/>
+                                            t-att-data-id="priceLine.id"
+                                            t-on-change="onChangeNegotiationPrice"/>
 
                                         <span
                                             t-if="priceLine.isBest"
-                                            class="best-badge">
-                                            BEST
-                                        </span>
+                                            class="best-badge">BEST</span>
                                     </div>
 
-                                    <t t-if="!priceLine or priceLine.vendor_state != 'negotiation'">
-                                        <span
-                                            t-att-class="
-                                                'price-text ' +
-                                                (priceLine and priceLine.isBest ? 'price-best' : '')
-                                            ">
-                                            <t t-esc="formatPrice(priceLine and priceLine.nego)"/>
-                                        </span>
+                                    <!-- harga final -->
+
+                                   <t t-if="priceLine and priceLine.vendor_state == 'final'">
+                                        <div class="final-price-box">
+                                            <span class="final-price-text">
+                                                <t t-esc="formatPrice(priceLine.nego)"/>
+                                            </span>
+                                        </div>
                                     </t>
 
                                 </td>
 
-
                                 <!-- ACTION -->
-                                <td class="text-center action-col">
-
+                                <td
+                                    class="action-col text-center"
+                                    t-att-class="priceLine and priceLine.isDimmed ? 'vendor-dimmed' : ''"
+                                >
                                     <button
                                         t-if="priceLine and priceLine.vendor_state == 'draft'"
                                         class="btn btn-sm btn-outline-primary"
-                                        t-on-click="onSetNegotiation"
-                                        t-att-data-id="priceLine.id">
+                                        t-att-data-id="priceLine.id"
+                                        t-on-click="onSetNegotiation">
                                         Mulai Nego
                                     </button>
 
                                     <button
                                         t-if="priceLine and priceLine.vendor_state == 'negotiation'"
                                         class="btn btn-sm btn-success"
-                                        t-on-click="onSelectVendor"
-                                        t-att-data-id="priceLine.id">
+                                        t-att-data-id="priceLine.id"
+                                        t-on-click="onSelectVendor">
                                         Pilih
                                     </button>
+                                    <t t-if="priceLine and priceLine.vendor_state == 'final'">
+                                        <div class="final-box">
+                                            <span class="final-badge">✔ FINAL</span>
 
-                                    <div
-                                        t-if="priceLine and priceLine.vendor_state == 'final'"
-                                        class="final-box">
-                                        <div class="final-badge">✔ Final</div>
-                                        <button
-                                            class="btn btn-xs btn-outline-danger"
-                                            t-on-click="onResetFinal"
-                                            t-att-data-id="priceLine.id">
-                                            Reset
-                                        </button>
-                                    </div>
+                                            <button
+                                                class="btn btn-xs btn-outline-danger final-reset-btn"
+                                                t-att-data-id="priceLine.id"
+                                                t-on-click="onResetFinal">
+                                                Reset
+                                            </button>
+                                        </div>
+                                    </t>
+
 
                                 </td>
 

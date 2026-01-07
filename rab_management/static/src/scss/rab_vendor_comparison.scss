@@ -1,153 +1,236 @@
-.rab-vendor-table {
+/* ======================================================
+   SCROLL CONTAINER
+   ====================================================== */
+.vendor-matrix-scroll {
   width: 100%;
-  min-width: max-content;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* ======================================================
+   TABLE BASE
+   ====================================================== */
+.rab-vendor-table {
+  /* ===== SINGLE SOURCE OF TRUTH ===== */
+  --w-item: 220px;
+  --w-qty: 80px;
+  --w-summary-vendor: 200px;
+  --w-summary-price: 110px;
+  --w-price: 110px;
+
+  /* ===== DECISION PANEL TONE ===== */
+  --decision-bg: #f3f7f5;
+  --decision-bg-header: #eef5f2;
+  --decision-divider: #dde5e2;
+
   border-collapse: separate;
   border-spacing: 0;
+  width: max-content;
+  min-width: 100%;
 
   th, td {
     padding: 6px 10px;
     white-space: nowrap;
-    border: none;
+    box-sizing: border-box;
+    background-clip: padding-box;
   }
 
-  /* =========================
-     HEADER (VERTICAL STICKY)
-     ========================= */
+  /* ======================================================
+     HEADER
+     ====================================================== */
   thead th {
     position: sticky;
     top: 0;
-    background: #f8f9fa;
     border-bottom: 2px solid #dee2e6;
     font-weight: 600;
-    z-index: 10;
+    z-index: 100;
+    background: #f8f9fa;
   }
 
   tbody tr {
     border-bottom: 1px solid #eee;
   }
 
-  /* =========================
-     PRICE STYLE
-     ========================= */
+  /* ======================================================
+     COLUMN WIDTHS (ABSOLUTE)
+     ====================================================== */
+  .item-col {
+    width: var(--w-item);
+    min-width: var(--w-item);
+    max-width: var(--w-item);
+    position: sticky;
+    left: 0;
+    z-index: 50;
+    background: var(--decision-bg);
+  }
+
+  .item-col .item-text {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .qty-col {
+    width: var(--w-qty);
+    min-width: var(--w-qty);
+    max-width: var(--w-qty);
+    text-align: center;
+    background: var(--decision-bg);
+  }
+
+  .summary-vendor-col {
+    width: var(--w-summary-vendor);
+    min-width: var(--w-summary-vendor);
+    max-width: var(--w-summary-vendor);
+    font-weight: 400;
+    background: var(--decision-bg);
+  }
+
+  .summary-price-col {
+    width: var(--w-summary-price);
+    min-width: var(--w-summary-price);
+    max-width: var(--w-summary-price);
+    text-align: right;
+    font-weight: 600;
+    background: var(--decision-bg);
+    border-right: 1px solid var(--decision-divider);
+  }
+
+  .price-col {
+    width: var(--w-price);
+    min-width: var(--w-price);
+    max-width: var(--w-price);
+    text-align: right;
+  }
+
+  /* ======================================================
+     STICKY LEFT — BODY
+     ====================================================== */
+  tbody td.item-col {
+    left: 0;
+    z-index: 50;
+  }
+
+  tbody td.qty-col {
+    position: sticky;
+    left: var(--w-item);
+    z-index: 49;
+  }
+
+  tbody td.summary-vendor-col {
+    position: sticky;
+    left: calc(var(--w-item) + var(--w-qty));
+    z-index: 48;
+  }
+
+  tbody td.summary-price-col {
+    position: sticky;
+    left: calc(
+      var(--w-item) +
+      var(--w-qty) +
+      var(--w-summary-vendor)
+    );
+    z-index: 47;
+  }
+
+  /* ======================================================
+     STICKY LEFT — HEADER (MATCH BODY)
+     ====================================================== */
+  thead th.item-col {
+    left: 0;
+    z-index: 120;
+    background: var(--decision-bg-header);
+  }
+
+  thead th.qty-col {
+    left: var(--w-item);
+    z-index: 119;
+    background: var(--decision-bg-header);
+  }
+
+  thead th.summary-vendor-col {
+    left: calc(var(--w-item) + var(--w-qty));
+    z-index: 118;
+    background: var(--decision-bg-header);
+  }
+
+  thead th.summary-price-col {
+    left: calc(
+      var(--w-item) +
+      var(--w-qty) +
+      var(--w-summary-vendor)
+    );
+    z-index: 117;
+    background: var(--decision-bg-header);
+    border-right: 1px solid var(--decision-divider);
+  }
+
+  /* ======================================================
+     VISUAL STATES
+     ====================================================== */
   .price-text {
     font-size: 13px;
     color: #555;
   }
 
   .price-best {
-    font-weight: 700;
+    font-weight: 600;
     color: #198754;
-    background: rgba(25, 135, 84, 0.08);
+    background: rgba(25,135,84,.06);
     padding: 2px 6px;
     border-radius: 4px;
   }
 
-  input.form-control-sm {
-    font-weight: 600;
+  .nego-input-wrapper {
+    position: relative;
+
+    &.best input {
+      border: 1.5px dashed #198754;
+      background: rgba(25,135,84,.04);
+    }
+
+    .best-badge {
+      position: absolute;
+      top: -8px;
+      right: -6px;
+      background: #198754;
+      color: #fff;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      pointer-events: none;
+    }
   }
 
-  /* =========================
-     FINAL BOX
-     ========================= */
+  /* ======================================================
+     FINAL — DECISION STATE (CALM & SERIOUS)
+     ====================================================== */
   .final-box {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 4px;
+    align-items: center;
   }
 
   .final-badge {
-    background: #198754;
-    color: white;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 12px;
-  }
-
-  /* =========================
-     PRICE COLUMN WIDTH
-     ========================= */
-  th.price-col,
-  td.price-col {
-    min-width: 90px;
-    max-width: 110px;
-  }
-
-  td.price-col input {
-    width: 100%;
-    box-sizing: border-box;
-    text-align: right;
-  }
-
-  /* =========================
-     STICKY LEFT COLUMNS (BODY)
-     ========================= */
-  td.item-col {
-    position: sticky;
-    left: 0;
-    background: #fff;
-    z-index: 6;
-    min-width: 220px;
-  }
-
-  td.qty-col {
-    position: sticky;
-    left: 220px;
-    background: #fff;
-    z-index: 6;
-    min-width: 80px;
-  }
-
-  /* =========================
-     STICKY LEFT COLUMNS (HEADER)
-     ========================= */
-  thead th.item-col {
-    position: sticky;
-    top: 0;
-    left: 0;
-    background: #f8f9fa;
-    z-index: 20;
-  }
-
-  thead th.qty-col {
-    position: sticky;
-    top: 0;
-    left: 220px;
-    background: #f8f9fa;
-    z-index: 20;
-  }
-}
-
-/* =========================
-   SCROLL CONTAINER
-   ========================= */
-.vendor-matrix-scroll {
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
-  padding-bottom: 6px;
-}
-
-
-.nego-input-wrapper {
-  position: relative;
-
-  &.best input {
-    border: 2px solid #198754;
-    background: rgba(25, 135, 84, 0.05);
-  }
-
-  .best-badge {
-    position: absolute;
-    top: -8px;
-    right: -6px;
-    background: #198754;
-    color: #fff;
-    font-size: 10px;
+    background: rgba(25,135,84,.15);
+    color: #198754;
+    font-size: 11px;
     font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 10px;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+
+  .final-reset-btn {
+    font-size: 11px;
+    padding: 2px 8px;
+  }
+
+  .vendor-dimmed {
+    opacity: .3;
+    filter: grayscale(.6);
     pointer-events: none;
   }
 }
