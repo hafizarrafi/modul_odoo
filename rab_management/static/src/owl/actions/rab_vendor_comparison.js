@@ -7,11 +7,10 @@ import { VendorMatrix } from "../components/vendor_matrix/vendor_matrix";
 
 export class RabVendorComparisonAction extends Component {
     setup() {
-        // service bawaan odoo
         this.actionService = useService("action");
         this.notification = useService("notification");
 
-        // ambil active_id dari context action
+        // RAB aktif dari action context
         this.rabId = this.props?.action?.context?.active_id;
 
         if (!this.rabId) {
@@ -22,10 +21,6 @@ export class RabVendorComparisonAction extends Component {
         }
     }
 
-    /**
-     * Dipanggil setelah user memilih vendor final
-     * (opsional, tapi rapi)
-     */
     closeAndBack() {
         this.actionService.doAction({
             type: "ir.actions.act_window_close",
@@ -40,7 +35,6 @@ RabVendorComparisonAction.components = {
     VendorMatrix,
 };
 
-// REGISTER ACTION
 registry.category("actions").add(
     "rab_vendor_comparison_action",
     RabVendorComparisonAction

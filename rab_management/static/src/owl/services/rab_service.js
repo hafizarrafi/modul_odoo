@@ -7,6 +7,7 @@ export const rabService = {
 
     start(env, { orm }) {
         return {
+            // ambil data matrix vendor untuk satu RAB
             async fetchVendorMatrix(rabId) {
                 const lines = await orm.searchRead(
                     "rab.management.line",
@@ -41,7 +42,7 @@ export const rabService = {
                 );
             },
 
-            // negotiation → final
+            // negotiation ke final
             async setFinalVendor(id) {
                 return orm.call(
                     "rab.vendor.comparison",
@@ -50,7 +51,7 @@ export const rabService = {
                 );
             },
 
-            // final → draft (RESET)
+            // reset final vendor
             async resetFinal(id) {
                 return orm.call(
                     "rab.vendor.comparison",
@@ -59,6 +60,7 @@ export const rabService = {
                 );
             },
 
+            // update harga awal
             async updateBasePrice(id, price) {
                 return orm.write(
                     "rab.vendor.comparison",
@@ -67,8 +69,7 @@ export const rabService = {
                 );
             },
 
-
-            // inline nego price
+            // update harga negosiasi (inline)
             async updateNegotiationPrice(id, price) {
                 return orm.write(
                     "rab.vendor.comparison",

@@ -17,3 +17,4 @@ __pycache__/
 odoo.log
 .env
 
+.gitignore

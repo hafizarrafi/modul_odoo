@@ -1,24 +1,24 @@
-/* ======================================================
+/* ===============================
    SCROLL CONTAINER
-   ====================================================== */
+   =============================== */
 .vendor-matrix-scroll {
   width: 100%;
   overflow-x: auto;
   position: relative;
 }
 
-/* ======================================================
+/* ===============================
    TABLE BASE
-   ====================================================== */
+   =============================== */
 .rab-vendor-table {
-  /* ===== SINGLE SOURCE OF TRUTH ===== */
+  /* layout constants */
   --w-item: 220px;
   --w-qty: 80px;
   --w-summary-vendor: 200px;
   --w-summary-price: 110px;
   --w-price: 110px;
 
-  /* ===== DECISION PANEL TONE ===== */
+  /* decision panel tone */
   --decision-bg: #f3f7f5;
   --decision-bg-header: #eef5f2;
   --decision-divider: #dde5e2;
@@ -35,25 +35,25 @@
     background-clip: padding-box;
   }
 
-  /* ======================================================
+  /* ===============================
      HEADER
-     ====================================================== */
+     =============================== */
   thead th {
     position: sticky;
     top: 0;
-    border-bottom: 2px solid #dee2e6;
-    font-weight: 600;
     z-index: 100;
     background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
   }
 
   tbody tr {
     border-bottom: 1px solid #eee;
   }
 
-  /* ======================================================
-     COLUMN WIDTHS (ABSOLUTE)
-     ====================================================== */
+  /* ===============================
+     COLUMN WIDTHS
+     =============================== */
   .item-col {
     width: var(--w-item);
     min-width: var(--w-item);
@@ -66,10 +66,8 @@
 
   .item-col .item-text {
     display: block;
-    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .qty-col {
@@ -84,7 +82,6 @@
     width: var(--w-summary-vendor);
     min-width: var(--w-summary-vendor);
     max-width: var(--w-summary-vendor);
-    font-weight: 400;
     background: var(--decision-bg);
   }
 
@@ -105,9 +102,9 @@
     text-align: right;
   }
 
-  /* ======================================================
+  /* ===============================
      STICKY LEFT — BODY
-     ====================================================== */
+     =============================== */
   tbody td.item-col {
     left: 0;
     z-index: 50;
@@ -135,9 +132,9 @@
     z-index: 47;
   }
 
-  /* ======================================================
-     STICKY LEFT — HEADER (MATCH BODY)
-     ====================================================== */
+  /* ===============================
+     STICKY LEFT — HEADER
+     =============================== */
   thead th.item-col {
     left: 0;
     z-index: 120;
@@ -167,9 +164,9 @@
     border-right: 1px solid var(--decision-divider);
   }
 
-  /* ======================================================
-     VISUAL STATES
-     ====================================================== */
+  /* ===============================
+     PRICE STATES
+     =============================== */
   .price-text {
     font-size: 13px;
     color: #555;
@@ -204,9 +201,9 @@
     }
   }
 
-  /* ======================================================
-     FINAL — DECISION STATE (CALM & SERIOUS)
-     ====================================================== */
+  /* ===============================
+     FINAL STATE
+     =============================== */
   .final-box {
     display: flex;
     flex-direction: column;
