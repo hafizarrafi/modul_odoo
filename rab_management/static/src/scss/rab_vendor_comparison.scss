@@ -1,26 +1,153 @@
 .rab-vendor-table {
   width: 100%;
-  border-collapse: collapse;
+  min-width: max-content;
+  border-collapse: separate;
+  border-spacing: 0;
 
   th, td {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
+    padding: 6px 10px;
     white-space: nowrap;
+    border: none;
   }
 
-  th {
-    background: #f7f7f7;
+  /* =========================
+     HEADER (VERTICAL STICKY)
+     ========================= */
+  thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    z-index: 10;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #eee;
+  }
+
+  /* =========================
+     PRICE STYLE
+     ========================= */
+  .price-text {
+    font-size: 13px;
+    color: #555;
+  }
+
+  .price-best {
+    font-weight: 700;
+    color: #198754;
+    background: rgba(25, 135, 84, 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  input.form-control-sm {
     font-weight: 600;
   }
 
-  .sticky-col {
-    position: sticky;
-    left: 0;
-    background: white;
-    z-index: 2;
+  /* =========================
+     FINAL BOX
+     ========================= */
+  .final-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
   }
 
-  .sticky-col.qty {
-    left: 180px;
+  .final-badge {
+    background: #198754;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+  }
+
+  /* =========================
+     PRICE COLUMN WIDTH
+     ========================= */
+  th.price-col,
+  td.price-col {
+    min-width: 90px;
+    max-width: 110px;
+  }
+
+  td.price-col input {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: right;
+  }
+
+  /* =========================
+     STICKY LEFT COLUMNS (BODY)
+     ========================= */
+  td.item-col {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 6;
+    min-width: 220px;
+  }
+
+  td.qty-col {
+    position: sticky;
+    left: 220px;
+    background: #fff;
+    z-index: 6;
+    min-width: 80px;
+  }
+
+  /* =========================
+     STICKY LEFT COLUMNS (HEADER)
+     ========================= */
+  thead th.item-col {
+    position: sticky;
+    top: 0;
+    left: 0;
+    background: #f8f9fa;
+    z-index: 20;
+  }
+
+  thead th.qty-col {
+    position: sticky;
+    top: 0;
+    left: 220px;
+    background: #f8f9fa;
+    z-index: 20;
+  }
+}
+
+/* =========================
+   SCROLL CONTAINER
+   ========================= */
+.vendor-matrix-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-bottom: 6px;
+}
+
+
+.nego-input-wrapper {
+  position: relative;
+
+  &.best input {
+    border: 2px solid #198754;
+    background: rgba(25, 135, 84, 0.05);
+  }
+
+  .best-badge {
+    position: absolute;
+    top: -8px;
+    right: -6px;
+    background: #198754;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    pointer-events: none;
   }
 }

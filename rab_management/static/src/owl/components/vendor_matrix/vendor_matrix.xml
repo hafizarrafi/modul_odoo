@@ -8,96 +8,147 @@
     </t>
 
     <t t-else="">
-        <table class="table table-bordered table-sm align-middle">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th class="text-center">Qty</th>
-                    <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
-                        <th colspan="3" class="text-center">
-                            <t t-esc="vendor.name"/>
-                        </th>
-                    </t>
-                </tr>
-                <tr>
-                    <th/>
-                    <th/>
-                    <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
-                        <th class="text-center">Awal</th>
-                        <th class="text-center">Nego</th>
-                        <th/>
-                    </t>
-                </tr>
-            </thead>
 
-            <tbody>
-                <t t-foreach="state.items" t-as="item" t-key="item.id">
+        <!-- SCROLL CONTAINER -->
+        <div class="vendor-matrix-scroll">
+
+            <table class="table table-sm align-middle rab-vendor-table">
+
+                <thead>
                     <tr>
-                        <td>
-                            <t t-esc="item.name"/>
-                        </td>
-
-                        <td class="text-center">
-                            <t t-esc="item.qty"/>
-                        </td>
+                        <th class="item-col">Item</th>
+                        <th class="qty-col text-center">Qty</th>
 
                         <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
-
-                            <t t-set="priceLine" t-value="item.prices[vendor.id]"/>
-
-                            <!-- Harga Awal -->
-                            <td class="text-end">
-                                <t t-if="priceLine">
-                                    <t t-esc="formatPrice(priceLine.base)"/>
-                                </t>
-                                <t t-else="">-</t>
-                            </td>
-
-                            <!-- Harga Nego -->
-                            <td class="text-end">
-                                <t t-if="priceLine">
-                                    <t t-esc="formatPrice(priceLine.nego)"/>
-                                </t>
-                                <t t-else="">-</t>
-                            </td>
-
-                            <!-- Action -->
-                            <td class="text-center">
-
-                                <!-- DRAFT → NEGOTIATION -->
-                                <button
-                                    t-if="priceLine and priceLine.vendor_state == 'draft'"
-                                    class="btn btn-sm btn-outline-primary"
-                                    t-on-click="onSetNegotiation"
-                                    t-att-data-id="priceLine.id">
-                                    Mulai Nego
-                                </button>
-
-                                <!-- NEGOTIATION → FINAL -->
-                                <button
-                                    t-if="priceLine and priceLine.vendor_state == 'negotiation'"
-                                    class="btn btn-sm btn-success"
-                                    t-on-click="onSelectVendor"
-                                    t-att-data-id="priceLine.id">
-                                    Pilih
-                                </button>
-
-                                <!-- FINAL -->
-                                <span
-                                    t-if="priceLine and priceLine.vendor_state == 'final'"
-                                    class="badge bg-success">
-                                    Final
-                                </span>
-
-                            </td>
-
+                            <th colspan="3" class="text-center vendor-col">
+                                <t t-esc="vendor.name"/>
+                            </th>
                         </t>
                     </tr>
-                </t>
-            </tbody>
-        </table>
+
+                    <tr>
+                        <th class="item-col"/>
+                        <th class="qty-col"/>
+
+                        <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
+                            <th class="text-center price-col">Awal</th>
+                            <th class="text-center price-col">Nego</th>
+                            <th class="action-col"/>
+                        </t>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <t t-foreach="state.items" t-as="item" t-key="item.id">
+                        <tr>
+
+                            <!-- ITEM -->
+                            <td class="item-col">
+                                <t t-esc="item.name"/>
+                            </td>
+
+                            <!-- QTY -->
+                            <td class="qty-col text-center">
+                                <t t-esc="item.qty"/>
+                            </td>
+
+                            <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.id">
+
+                                <t t-set="priceLine" t-value="item.prices[vendor.id]"/>
+
+                                <!-- HARGA AWAL -->
+                                <td class="text-end price-col">
+                                    <input
+                                        t-if="priceLine and priceLine.vendor_state == 'draft'"
+                                        type="number"
+                                        class="form-control form-control-sm text-end"
+                                        t-att-value="priceLine.base"
+                                        t-on-change="onChangeBasePrice"
+                                        t-att-data-id="priceLine.id"/>
+
+                                    <t t-if="!priceLine or priceLine.vendor_state != 'draft'">
+                                        <t t-esc="formatPrice(priceLine and priceLine.base)"/>
+                                    </t>
+                                </td>
+
+                                <!-- HARGA NEGO -->
+                                <td class="text-end price-col">
+
+                                    <div
+                                        t-if="priceLine and priceLine.vendor_state == 'negotiation'"
+                                        t-att-class="
+                                            'nego-input-wrapper ' +
+                                            (priceLine.isBest ? 'best' : '')
+                                        "
+                                    >
+                                        <input
+                                            type="number"
+                                            class="form-control form-control-sm text-end"
+                                            t-att-value="priceLine.nego"
+                                            t-on-change="onChangeNegotiationPrice"
+                                            t-att-data-id="priceLine.id"/>
+
+                                        <span
+                                            t-if="priceLine.isBest"
+                                            class="best-badge">
+                                            BEST
+                                        </span>
+                                    </div>
+
+                                    <t t-if="!priceLine or priceLine.vendor_state != 'negotiation'">
+                                        <span
+                                            t-att-class="
+                                                'price-text ' +
+                                                (priceLine and priceLine.isBest ? 'price-best' : '')
+                                            ">
+                                            <t t-esc="formatPrice(priceLine and priceLine.nego)"/>
+                                        </span>
+                                    </t>
+
+                                </td>
+
+
+                                <!-- ACTION -->
+                                <td class="text-center action-col">
+
+                                    <button
+                                        t-if="priceLine and priceLine.vendor_state == 'draft'"
+                                        class="btn btn-sm btn-outline-primary"
+                                        t-on-click="onSetNegotiation"
+                                        t-att-data-id="priceLine.id">
+                                        Mulai Nego
+                                    </button>
+
+                                    <button
+                                        t-if="priceLine and priceLine.vendor_state == 'negotiation'"
+                                        class="btn btn-sm btn-success"
+                                        t-on-click="onSelectVendor"
+                                        t-att-data-id="priceLine.id">
+                                        Pilih
+                                    </button>
+
+                                    <div
+                                        t-if="priceLine and priceLine.vendor_state == 'final'"
+                                        class="final-box">
+                                        <div class="final-badge">✔ Final</div>
+                                        <button
+                                            class="btn btn-xs btn-outline-danger"
+                                            t-on-click="onResetFinal"
+                                            t-att-data-id="priceLine.id">
+                                            Reset
+                                        </button>
+                                    </div>
+
+                                </td>
+
+                            </t>
+                        </tr>
+                    </t>
+                </tbody>
+
+            </table>
+        </div>
     </t>
 
 </t>
-
 </templates>

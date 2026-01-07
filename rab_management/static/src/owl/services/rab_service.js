@@ -7,14 +7,6 @@ export const rabService = {
 
     start(env, { orm }) {
         return {
-            async setFinalVendor(vendorComparisonId) {
-                return orm.call(
-                    "rab.vendor.comparison",
-                    "action_set_final",
-                    [[vendorComparisonId]]
-                );
-            },
-
             async fetchVendorMatrix(rabId) {
                 const lines = await orm.searchRead(
                     "rab.management.line",
@@ -40,14 +32,50 @@ export const rabService = {
                 return { lines, vendorLines };
             },
 
-            async setNegotiation(vendorComparisonId) {
+            // draft → negotiation
+            async setNegotiation(id) {
                 return orm.call(
                     "rab.vendor.comparison",
                     "action_set_negotiation",
-                    [[vendorComparisonId]]
+                    [[id]]
                 );
-            }
+            },
 
+            // negotiation → final
+            async setFinalVendor(id) {
+                return orm.call(
+                    "rab.vendor.comparison",
+                    "action_set_final",
+                    [[id]]
+                );
+            },
+
+            // final → draft (RESET)
+            async resetFinal(id) {
+                return orm.call(
+                    "rab.vendor.comparison",
+                    "action_reset_final",
+                    [[id]]
+                );
+            },
+
+            async updateBasePrice(id, price) {
+                return orm.write(
+                    "rab.vendor.comparison",
+                    [id],
+                    { price }
+                );
+            },
+
+
+            // inline nego price
+            async updateNegotiationPrice(id, price) {
+                return orm.write(
+                    "rab.vendor.comparison",
+                    [id],
+                    { negotiation_price: price }
+                );
+            },
         };
     },
 };
